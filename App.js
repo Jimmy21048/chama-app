@@ -1,20 +1,36 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import Sign from './screens/Sign'
+import Account from './screens/Account'
+import Admin from './screens/Admin'
+import Modal from './screens/Modal'
+
+const Stack = createNativeStackNavigator()
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Group>
+          <Stack.Screen
+          name='sign'
+          component={Sign}
+          options={{headerShown: false}} />
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+          <Stack.Screen
+          name='account'
+          component={Account}
+          options={{headerShown: false}} />
+
+          <Stack.Screen
+          name='admin'
+          component={Admin}
+          options={{headerShown: false}} />
+        </Stack.Group>
+        <Stack.Group screenOptions={{ presentation: 'modal' }}>
+            <Stack.Screen name="modal" component={Modal} />
+        </Stack.Group>
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
+}
