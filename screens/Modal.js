@@ -1,32 +1,42 @@
 
 import { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from "react-native";
 import * as SecureStore from 'expo-secure-store'
 
 export default function Modal({ navigation, route }) {
-    const[message, setMessage] = useState('')
-    const [data, setData] = useState({
-        username: '',
-        password: ''
-    })
     const { user, pwd } = route.params
 
-    const handleDeleteAccount = async () => {
-        await SecureStore.deleteItemAsync('user')
-        .then(() => {
-            navigation.replace('sign')
-        })
+    const[message, setMessage] = useState('')
+    const [data, setData] = useState({
+        username: user,
+        password: pwd
+    })
+
+    const handleDeleteAccount = () => {
+        Alert.alert(
+            'Confirm Account Deletion',
+            "Are you sure you want to delete your account?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Delete",
+                    onPress: async () => {
+                        await SecureStore.deleteItemAsync('user').then(() => {
+                            navigation.replace('sign')
+                        })
+                    }
+                }
+            ]
+        )
+        
+        
     }
 
     const handleUpdateProfile = async () => {
-        if(data.username === '') {
-            setData({...data, username: user})
-        }
-        if(data.password === '') {
-            setData({...data, password: pwd})
-        }
 
-        console.log(data)
         await SecureStore.setItemAsync('user', JSON.stringify(data))
         .then(() => {
             setMessage("PROFILE UPDATED SUCCESSFULLY")
@@ -45,10 +55,10 @@ export default function Modal({ navigation, route }) {
                 <Text style = {{ fontWeight: 800, fontSize: 30 }}>Profile</Text>
                 <View style = {{ gap: 10, borderBottomColor: '#808080', borderBottomWidth: 1}}>
                     <Text>Username</Text>
-                    <TextInput value={user} onChangeText={(text) => setData({...data, username: text})} style = { styles.input } />
+                    <TextInput defaultValue={user} onChangeText={(text) => setData({...data, username: text})} style = { styles.input } />
 
                     <Text>Password</Text>
-                    <TextInput value={pwd} onChangeText={(text) => setData({...data, password: text})} secureTextEntry style = { styles.input } />
+                    <TextInput defaultValue={pwd} onChangeText={(text) => setData({...data, password: text})} secureTextEntry style = { styles.input } />
 
                     <TouchableOpacity activeOpacity={0.6} style = {styles.btnChange} onPress={handleUpdateProfile}>
                         <Text style = {{ fontWeight: 700 }}>Update Profile</Text>
