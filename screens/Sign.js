@@ -56,6 +56,11 @@ export default function Sign({ navigation }) {
 
             if(parsedCred.username === data.username && parsedCred.password === data.password) {
                 navigation.navigate('account')
+            } else {
+                setError("INVALID CREDENTIALS")
+                setTimeout(() => {
+                    setError(null)
+                }, 4000)
             }
         }
 
