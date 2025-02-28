@@ -55,7 +55,7 @@ export default function Sign({ navigation }) {
             const parsedCred = JSON.parse(cred)
 
             if(parsedCred.username === data.username && parsedCred.password === data.password) {
-                navigation.navigate('account')
+                navigation.navigate('account', { user: data.username })
             } else {
                 setError("INVALID CREDENTIALS")
                 setTimeout(() => {
