@@ -30,7 +30,7 @@ export default function Sign({ navigation }) {
                     setSuccess(null)
                 }, 4000)
                 setAccExist(true)
-                navigation.navigate('account')
+                navigation.navigate('account', { user: data.username, pwd: data.password })
             })
 
         } else {
@@ -43,6 +43,7 @@ export default function Sign({ navigation }) {
     }
 
     const handleLogin = async () => {
+        // await SecureStore.deleteItemAsync('user')
         const cred = await SecureStore.getItemAsync('user')
         if(cred === null) {
             setError("NO USER ACCOUNT DETECTED")
@@ -50,12 +51,12 @@ export default function Sign({ navigation }) {
                 setError(null)
             }, 4000)
         }else if(data.username === 'admin' && data.password === 'admin') {
-            navigation.navigate('admin', { user: 'Admin' })
+            navigation.navigate('admin', { user: 'Admin', pwd: 'admin' })
         }else {
             const parsedCred = JSON.parse(cred)
 
             if(parsedCred.username === data.username && parsedCred.password === data.password) {
-                navigation.navigate('account', { user: data.username })
+                navigation.navigate('account', { user: data.username, pwd: data.password })
             } else {
                 setError("INVALID CREDENTIALS")
                 setTimeout(() => {

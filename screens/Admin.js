@@ -4,7 +4,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get('screen')
 export default function Admin({ navigation, route }) {
-    const { user } = route.params
+    const { user, pwd } = route.params
 
     const handleSettings = () => {
         
@@ -19,7 +19,7 @@ export default function Admin({ navigation, route }) {
                     borderWidth: 4, width: 50, height: 50, 
                     textAlign: 'center', borderRadius: 50 }}
                 >{user.at(0)}</Text>
-                <TouchableOpacity activeOpacity={0.6} onPress={() => navigation.navigate('modal')} >
+                <TouchableOpacity activeOpacity={0.6} onPress={() => navigation.navigate('modal', { user: user, pwd: pwd })} >
                     <MaterialIcons name="settings" color={'black'} size={40} />
                 </TouchableOpacity>
             </View>

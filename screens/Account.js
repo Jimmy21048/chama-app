@@ -4,13 +4,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 const { height, width } = Dimensions.get('screen')
 export default function Home({ navigation, route }) {
-    const { user } = route.params
-    const handleDeleteAccount = async () => {
-        await SecureStore.deleteItemAsync('user')
-        .then(() => {
-            navigation.navigate('sign')
-        })
-    }
+    const { user, pwd } = route.params
+
     return (
         <SafeAreaView style = { styles.container } >
             <View style = { styles.header }>
@@ -19,10 +14,8 @@ export default function Home({ navigation, route }) {
                     borderWidth: 4, width: 50, height: 50, 
                     textAlign: 'center', borderRadius: 50 }}
                 >{user.at(0)}</Text>
-                {/* <TouchableOpacity  style = {styles.option } onPress={handleDeleteAccount}>
-                    <Text style = {{color: '#ED1B24', fontWeight: 800}}>Delete</Text>
-                </TouchableOpacity> */}
-                <TouchableOpacity activeOpacity={0.6} onPress={() => navigation.navigate('modal')} >
+
+                <TouchableOpacity activeOpacity={0.6} onPress={() => navigation.navigate('modal', { user: user, pwd: pwd })} >
                     <MaterialIcons name="settings" color={'black'} size={40} />
                 </TouchableOpacity>
             </View>
