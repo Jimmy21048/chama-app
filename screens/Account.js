@@ -7,7 +7,7 @@ const { height, width } = Dimensions.get('screen')
 export default function Home({ navigation, route }) {
     const { user, pwd } = route.params
 
-    const[progress, setProgress] = useState(0.7)
+    const[progress, setProgress] = useState(0.5)
     const total = 1000
 
     return (
@@ -25,13 +25,64 @@ export default function Home({ navigation, route }) {
             </View>
             <View style = { styles.body }>
                 <View style = { styles.box }>
-                    <Text style = {{ fontSize: 17 }}>This week</Text>
-                    <Progress.Circle
-                        progress={0.8} 
-                        size={60} 
-                        thickness={8} 
-                        color="#007bff" 
-                        showsText={true}  />
+                    <View style = {{ flexDirection: 'row', gap: 10, alignItems: "flex-end" }}>
+                        <View style = {{gap: 10, alignItems: 'center', width: 70 }}>
+                            <Text style = {{ fontSize: 17 }}>Week</Text>
+                            <Progress.Circle
+                                progress={progress} 
+                                size={60} 
+                                thickness={8} 
+                                color="#007bff" 
+                                showsText={true}  />
+                        </View>
+                        <View style = {{ flexDirection: 'row', gap: 20}}>
+                            <View style = {styles.textBox}>
+                                <Text style = { styles.nameTitle }>Jimmy</Text>
+                                <Text>Bal: 450</Text>
+                                <Text>Arr: 250</Text>
+                            </View>
+                            <View>
+                                <Text style = { styles.nameTitle }>Enock</Text>
+                                <Text>Bal: 450</Text>
+                                <Text>Arr: 250</Text>
+                            </View>
+                            <View>
+                                <Text style = { styles.nameTitle }>stacy</Text>
+                                <Text>Bal: 450</Text>
+                                <Text>Arr: 250</Text>
+                            </View>
+                            <View>
+                                <Text style = { styles.nameTitle }>Fedy</Text>
+                                <Text>Bal: 450</Text>
+                                <Text>Arr: 250</Text>
+                            </View>
+                        </View>
+                    </View>
+                    <View style = { { height: 100, flexDirection: 'row', gap: 20, alignItems: 'center'} }>
+                        <View style = {{gap: 10}}>
+                            <Text style = {{ fontSize: 17 }}>Month</Text>
+                            <Progress.Circle
+                                    progress={0.9} 
+                                    size={60} 
+                                    thickness={8} 
+                                    color="purple" 
+                                    showsText={true}  />
+                        </View>
+                        <View>
+                            <Text style = {{fontWeight: 800}}>Round Beneficiary: Jimmy</Text>
+                            <Text>Total Amount: 1300</Text>
+                            <Text>Current Balance: 1300</Text>
+                        </View>
+                    </View>
+                    <View style = { styles.card }>
+                        <Text style = {{ fontSize: 33 }}>Balance</Text>
+                        <Text style = {{ fontSize: 18 }}>Ksh. 4000.00</Text>
+                        <Text style = {{ fontSize: 25 }}>Savings</Text>
+                        <Text style = {{ fontSize: 17 }}>Ksh. 400</Text>
+                        <TouchableOpacity style = { styles.history }>
+                            <Text style = {{ fontSize: 18, color: 'white', textAlign: 'center'}}>History</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         </SafeAreaView>
@@ -44,13 +95,6 @@ const styles = StyleSheet.create({
         paddingTop: Platform.OS === 'ios' ? 5 : 35
     },
     header: {
-        // borderColor: 'black',
-        // borderWidth: 1,
-        // flex: 0.1,
-        // flexDirection: 'row',
-        // alignItems: 'center',
-        // justifyContent: 'flex-end',
-        // padding: 10
         height: height * 0.1,
         paddingHorizontal: 10,
         flexDirection: 'row',
@@ -70,5 +114,35 @@ const styles = StyleSheet.create({
         height: height * 0.9,
         backgroundColor: '#E5E4E2',
         padding: 10
+    },
+    box: {
+        // flexDirection: 'row',
+        // gap: 5
+        gap: 40
+    },
+    nameTitle: {
+        fontWeight: 800,
+        // fontSize: 16
+    },
+    textBox: {
+        gap: 2
+    },
+    card: {
+        height: height * 0.3,
+        borderColor: 'orange',
+        borderWidth: 1,
+        borderRadius: 20,
+        backgroundColor: 'orange',
+        alignItems: 'center',
+        padding: 20,
+        gap: 10
+    },
+    history: {
+        borderWidth: 1,
+        width: 120,
+        backgroundColor: 'black',
+        height: 40,
+        borderRadius: 10,
+        justifyContent: 'center'
     }
 })
