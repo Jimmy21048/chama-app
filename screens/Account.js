@@ -1,10 +1,14 @@
 import { View, Text, StyleSheet, SafeAreaView, Platform, TouchableOpacity, Dimensions } from "react-native";
-import * as SecureStore from 'expo-secure-store'
+import * as Progress from 'react-native-progress';
 import { MaterialIcons } from "@expo/vector-icons";
+import { useState } from "react";
 
 const { height, width } = Dimensions.get('screen')
 export default function Home({ navigation, route }) {
     const { user, pwd } = route.params
+
+    const[progress, setProgress] = useState(0.7)
+    const total = 1000
 
     return (
         <SafeAreaView style = { styles.container } >
@@ -18,6 +22,17 @@ export default function Home({ navigation, route }) {
                 <TouchableOpacity activeOpacity={0.6} onPress={() => navigation.navigate('modal', { user: user, pwd: pwd })} >
                     <MaterialIcons name="settings" color={'black'} size={40} />
                 </TouchableOpacity>
+            </View>
+            <View style = { styles.body }>
+                <View style = { styles.box }>
+                    <Text style = {{ fontSize: 17 }}>This week</Text>
+                    <Progress.Circle
+                        progress={0.8} 
+                        size={60} 
+                        thickness={8} 
+                        color="#007bff" 
+                        showsText={true}  />
+                </View>
             </View>
         </SafeAreaView>
     )
@@ -51,4 +66,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 10,
     },
+    body: {
+        height: height * 0.9,
+        backgroundColor: '#E5E4E2',
+        padding: 10
+    }
 })
