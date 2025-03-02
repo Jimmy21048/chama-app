@@ -25,7 +25,7 @@ export default function Home({ navigation, route }) {
             </View>
             <View style = { styles.body }>
                 <View style = { styles.box }>
-                    <View style = {{ flexDirection: 'row', gap: 10, alignItems: "flex-end", height: height * 0.12 }}>
+                    <View style = {{ flexDirection: 'row', gap: 10, alignItems: "flex-end", height: height * 0.12,justifyContent: 'space-between' }}>
                         <View style = {{gap: 10, alignItems: 'center', width: 70 }}>
                             <Text style = {{ fontSize: 19 }}>Week</Text>
                             <Progress.Circle
@@ -35,28 +35,14 @@ export default function Home({ navigation, route }) {
                                 color="purple" 
                                 showsText={true}  />
                         </View>
-                        <View style = {{ flexDirection: 'row', gap: 20}}>
-                            <View style = {styles.textBox}>
+                        <View style = {styles.textBox}>
                                 <Text style = { styles.nameTitle }>Jimmy</Text>
                                 <Text>Bal: 450</Text>
                                 <Text>Arr: 250</Text>
-                            </View>
-                            <View>
-                                <Text style = { styles.nameTitle }>Enock</Text>
-                                <Text>Bal: 450</Text>
-                                <Text>Arr: 250</Text>
-                            </View>
-                            <View>
-                                <Text style = { styles.nameTitle }>stacy</Text>
-                                <Text>Bal: 450</Text>
-                                <Text>Arr: 250</Text>
-                            </View>
-                            <View>
-                                <Text style = { styles.nameTitle }>Fedy</Text>
-                                <Text>Bal: 450</Text>
-                                <Text>Arr: 250</Text>
-                            </View>
                         </View>
+                        <TouchableOpacity onPress={() => navigation.navigate('more')} activeOpacity={0.2} style = { styles.more }>
+                                <MaterialIcons name="add" size={50} color={'purple'} />
+                        </TouchableOpacity>
                     </View>
                     <View style = { { height: height * 0.12, flexDirection: 'row', gap: 20, alignItems: 'flex-end'} }>
                         <View style = {{gap: 10}}>
@@ -84,12 +70,12 @@ export default function Home({ navigation, route }) {
                         <Text style = {{ fontSize: 18, }}>Ksh. 4000.00</Text>
                         <Text style = {{ fontSize: 25 }}>Savings</Text>
                         <Text style = {{ fontSize: 17 }}>Ksh. 400</Text>
-                        <TouchableOpacity style = { styles.history }>
+                        <TouchableOpacity onPress={() => navigation.navigate('history')} style = { styles.history }>
                             <Text style = {{ fontSize: 18, color: 'white', textAlign: 'center'}}>History</Text>
                         </TouchableOpacity>
                     </View>
                     <View style = {{height: height * 0.1}}>
-                        <TouchableOpacity activeOpacity={0.6} style = { styles.update }>
+                        <TouchableOpacity activeOpacity={0.2} style = { styles.update }>
                             <Text style = {{ fontSize: 22, color: 'purple', textAlign: 'center', fontWeight: 700}}>Request Update</Text>
                         </TouchableOpacity>
                     </View>
@@ -122,9 +108,13 @@ const styles = StyleSheet.create({
     },
     body: {
         height: height * 0.9,
-        // backgroundColor: '#E5E4E2',
         padding: 10,
         
+    },
+    more: {
+        borderWidth: 4,
+        borderColor: 'purple',
+        borderRadius: 50
     },
     box: {
         flex: 1,
@@ -132,7 +122,6 @@ const styles = StyleSheet.create({
     },
     nameTitle: {
         fontWeight: 800,
-        // fontSize: 16
     },
     textBox: {
         gap: 2
@@ -156,7 +145,7 @@ const styles = StyleSheet.create({
     update: {
         borderWidth: 2,
         borderColor: 'purple',
-        flex: 0.8,
+        flex: 0.7,
         alignItems: 'center',
         justifyContent: 'center',
         width: 180,
