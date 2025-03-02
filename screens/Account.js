@@ -25,14 +25,14 @@ export default function Home({ navigation, route }) {
             </View>
             <View style = { styles.body }>
                 <View style = { styles.box }>
-                    <View style = {{ flexDirection: 'row', gap: 10, alignItems: "flex-end" }}>
+                    <View style = {{ flexDirection: 'row', gap: 10, alignItems: "flex-end", height: height * 0.12 }}>
                         <View style = {{gap: 10, alignItems: 'center', width: 70 }}>
-                            <Text style = {{ fontSize: 17 }}>Week</Text>
+                            <Text style = {{ fontSize: 19 }}>Week</Text>
                             <Progress.Circle
                                 progress={progress} 
                                 size={60} 
                                 thickness={8} 
-                                color="#007bff" 
+                                color="purple" 
                                 showsText={true}  />
                         </View>
                         <View style = {{ flexDirection: 'row', gap: 20}}>
@@ -58,9 +58,9 @@ export default function Home({ navigation, route }) {
                             </View>
                         </View>
                     </View>
-                    <View style = { { height: 100, flexDirection: 'row', gap: 20, alignItems: 'center'} }>
+                    <View style = { { height: height * 0.12, flexDirection: 'row', gap: 20, alignItems: 'flex-end'} }>
                         <View style = {{gap: 10}}>
-                            <Text style = {{ fontSize: 17 }}>Month</Text>
+                            <Text style = {{ fontSize: 19 }}>Month</Text>
                             <Progress.Circle
                                     progress={0.9} 
                                     size={60} 
@@ -74,13 +74,23 @@ export default function Home({ navigation, route }) {
                             <Text>Current Balance: 1300</Text>
                         </View>
                     </View>
+                    <View style = {{height: height * 0.1}}>
+                        <Text style = {{ fontSize: 17 }}>Stats</Text>
+                        <Text>Weeks to your round: 20</Text>
+                        <Text>Amount to your next round: 650</Text>
+                    </View>
                     <View style = { styles.card }>
                         <Text style = {{ fontSize: 33 }}>Balance</Text>
-                        <Text style = {{ fontSize: 18 }}>Ksh. 4000.00</Text>
+                        <Text style = {{ fontSize: 18, }}>Ksh. 4000.00</Text>
                         <Text style = {{ fontSize: 25 }}>Savings</Text>
                         <Text style = {{ fontSize: 17 }}>Ksh. 400</Text>
                         <TouchableOpacity style = { styles.history }>
                             <Text style = {{ fontSize: 18, color: 'white', textAlign: 'center'}}>History</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style = {{height: height * 0.1}}>
+                        <TouchableOpacity activeOpacity={0.6} style = { styles.update }>
+                            <Text style = {{ fontSize: 22, color: 'purple', textAlign: 'center', fontWeight: 700}}>Request Update</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -112,13 +122,13 @@ const styles = StyleSheet.create({
     },
     body: {
         height: height * 0.9,
-        backgroundColor: '#E5E4E2',
-        padding: 10
+        // backgroundColor: '#E5E4E2',
+        padding: 10,
+        
     },
     box: {
-        // flexDirection: 'row',
-        // gap: 5
-        gap: 40
+        flex: 1,
+        gap: height * 0.01
     },
     nameTitle: {
         fontWeight: 800,
@@ -129,10 +139,8 @@ const styles = StyleSheet.create({
     },
     card: {
         height: height * 0.3,
-        borderColor: 'orange',
-        borderWidth: 1,
         borderRadius: 20,
-        backgroundColor: 'orange',
+        backgroundColor: '#555555',
         alignItems: 'center',
         padding: 20,
         gap: 10
@@ -144,5 +152,15 @@ const styles = StyleSheet.create({
         height: 40,
         borderRadius: 10,
         justifyContent: 'center'
+    },
+    update: {
+        borderWidth: 2,
+        borderColor: 'purple',
+        flex: 0.8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 180,
+        alignSelf: 'center',
+        borderRadius: 20
     }
 })
