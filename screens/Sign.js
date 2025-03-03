@@ -2,6 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import { Dimensions, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, TextInput, View, Text, TouchableOpacity } from "react-native";
 import * as SecureStore from 'expo-secure-store'
+import axios from "axios";
 
 const { width, height } = Dimensions.get('screen')
 export default function Sign({ navigation }) {
@@ -20,17 +21,37 @@ export default function Sign({ navigation }) {
     }
     checkAccount()
 
-    const handleSignup = async () => {
+    const handleSignup = () => {
         if(data.username.length > 0 && data.password.length > 0) {
 
-            await SecureStore.setItemAsync('user', JSON.stringify(data))
-            .then(() => {
-                setSuccess('SIGN UP SUCCESS')
-                setTimeout(() => {
-                    setSuccess(null)
-                }, 4000)
-                setAccExist(true)
-                navigation.navigate('account', { user: data.username, pwd: data.password })
+            axios.post('http://192.168.0.120:3000/getUser', {username: data.username})
+            .then(res => {
+                if(res.data.success) {
+                    axios.post('http://192.168.0.120:3000/verifyUser', {username: data.username, password: data.password})
+                    .then(res1  => {
+                        if(res1.data.added) {
+                            SecureStore.setItemAsync('user', JSON.stringify(data))
+                            .then(() => {
+                                setSuccess('SIGN UP SUCCESS')
+                                setTimeout(() => {
+                                    setSuccess(null)
+                                }, 4000)
+                                setAccExist(true)
+                                navigation.navigate('account', { user: data.username, pwd: data.password })
+                            })
+                        } else {
+                            setError('SORRY! OPERATION FAILED')
+                            setTimeout(() => {
+                                setError(null)
+                            }, 4000)
+                        }
+                    })
+                } else {
+                    setError('INVALID CREDENTIALS')
+                    setTimeout(() => {
+                        setError(null)
+                    }, 4000)
+                }
             })
 
         } else {
@@ -45,13 +66,13 @@ export default function Sign({ navigation }) {
     const handleLogin = async () => {
         // await SecureStore.deleteItemAsync('user')
         const cred = await SecureStore.getItemAsync('user')
-        if(cred === null) {
+        if(data.username === 'admin' && data.password === 'admin') {
+            navigation.navigate('admin', { user: 'admin', pwd: 'admin' })
+        }else if(cred === null) {
             setError("NO USER ACCOUNT DETECTED")
             setTimeout(() => {
                 setError(null)
             }, 4000)
-        }else if(data.username === 'admin' && data.password === 'admin') {
-            navigation.navigate('admin', { user: 'Admin', pwd: 'admin' })
         }else {
             const parsedCred = JSON.parse(cred)
 
@@ -86,7 +107,7 @@ export default function Sign({ navigation }) {
                 <View style = { styles.form }>
                     <View style = { styles.inputs }>
                         <View style = {{gap: 10}}>
-                            <Text style = {styles.label}>Username</Text>
+                            { signup ? <Text style = {styles.label}>Username Given by Admin</Text> : <Text style = {styles.label}>Username</Text> }
                             <TextInput value={data.username}  onChangeText={(val) => setData({...data, username: val})} style = { styles.input } />
                         </View>
                         <View style = {{gap: 10}}>

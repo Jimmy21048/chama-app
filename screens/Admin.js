@@ -80,6 +80,10 @@ export default function Admin({ navigation, route }) {
                         { loading ? <Text>Checking...</Text>: <Text>Add Member</Text> }
                     </TouchableOpacity>
                 </View>
+
+                <View style = { styles.addMember } >
+                    <Text style = {{ fontSize: 18 }}>Update weekly Payment</Text>
+                </View>
             </View>
         </SafeAreaView>
     )
@@ -101,7 +105,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderTopColor: 'black',
         height: height * 0.9,
-        padding: 10
+        padding: 10,
+        gap: 10
     },
     addMember: {
         borderWidth: 1,
