@@ -3,15 +3,26 @@ import { StatusBar } from "expo-status-bar";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import axios from "axios";
+import { Picker } from '@react-native-picker/picker';
 
 const { width, height } = Dimensions.get('screen')
 export default function Admin({ navigation, route }) {
     const { user, pwd } = route.params
     const [data, setData] = useState({
-        username: ''
+        username: '',
+        amount: 0
     })
     const[loading, setLoading] = useState(false)
     const[message, setMessage] = useState('')
+    const[users, setUsers] = useState([])
+    const[selectedUser, setSelectedUser] = useState('select')
+
+    axios.get('http://192.168.0.120:3000/getUsers')
+    .then(response => {
+        if(response.data.success) {
+            setUsers(response.data.success)
+        }
+    })
 
     const handleAddMember = () => {
                 Alert.alert(
@@ -58,6 +69,10 @@ export default function Admin({ navigation, route }) {
                 )
     }
 
+    const handleUpdateAmount = () => {
+        console.log(data.amount, selectedUser)
+    }
+
     return (
         <SafeAreaView style = { styles.container }>
             <StatusBar style="dark" />
@@ -83,6 +98,21 @@ export default function Admin({ navigation, route }) {
 
                 <View style = { styles.addMember } >
                     <Text style = {{ fontSize: 18 }}>Update weekly Payment</Text>
+                    <Picker
+                    style = { styles.pickers }
+                    selectedValue={selectedUser}
+                    onValueChange={(val) => setSelectedUser(val)} >
+                    <Picker.Item key={'admin'} label="Select Member" value="" />
+                    {
+                        users.map(user => {
+                            return <Picker.Item key={user.id} label={user.username} value={user.username} />
+                        })
+                    }
+                    </Picker>
+                    <TextInput style = { styles.input } placeholder="Amount..." value={data.amount} onChangeText={(text) => setData({...data, amount: text})} />
+                    <TouchableOpacity disabled = {loading ? true : false} onPress={handleUpdateAmount} activeOpacity={0.2} style = { styles.btnChange }>
+                        { loading ? <Text>Checking...</Text>: <Text>Update Amount</Text> }
+                    </TouchableOpacity>
                 </View>
             </View>
         </SafeAreaView>
@@ -128,5 +158,9 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderRadius: 10,
         width: 150
+    },
+    pickers: {
+        backgroundColor: '#C0C0C0',
+        width: 200
     }
 })
