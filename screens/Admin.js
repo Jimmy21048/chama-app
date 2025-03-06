@@ -4,6 +4,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Picker } from '@react-native-picker/picker';
+import { HOST } from '@env'
 
 const { width, height } = Dimensions.get('screen')
 export default function Admin({ navigation, route }) {
@@ -18,8 +19,9 @@ export default function Admin({ navigation, route }) {
     const[users, setUsers] = useState([])
     const[selectedUser, setSelectedUser] = useState('select')
 
+    
     useEffect(() => {
-        axios.get('http://192.168.0.125:3000/getUsers')
+        axios.get(`http://${HOST}:3000/getUsers`)
         .then(response => {
             if(response.data.success) {
                 setUsers(response.data.success)
@@ -39,7 +41,7 @@ export default function Admin({ navigation, route }) {
                         {
                             text: "Add",
                             onPress: () => {
-                                axios.post('http://192.168.0.125:3000/userExists', {username: data.username}, setLoading(true))
+                                axios.post(`http://${HOST}:3000/userExists`, {username: data.username}, setLoading(true))
                                 .then(response => {
                                     const exists = response.data.exists
 
@@ -49,7 +51,7 @@ export default function Admin({ navigation, route }) {
                                             setMessage('')
                                         }, 5000)
                                     } else {
-                                        axios.post('http://192.168.0.125:3000/addUser', {username: data.username})
+                                        axios.post(`http://${HOST}:3000/addUser`, {username: data.username})
                                         .then(res => {
                                             if(res.data.added) {
                                                 setMessage('Member Successfully Added')
@@ -91,7 +93,7 @@ export default function Admin({ navigation, route }) {
             console.log(parsedMetaData)
             parsedMetaData.push(metaData)
             // console.log(parsedMetaData)
-            axios.post('http://192.168.0.125:3000/updateAmount', 
+            axios.post(`http://${HOST}:3000/updateAmount`, 
                 {username: userItem.username, metaData: JSON.stringify(parsedMetaData), amount: data.amount})
             .then(res => {
                 setUpdateLoading(false)

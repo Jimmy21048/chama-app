@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Dimensions, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, TextInput, View, Text, TouchableOpacity } from "react-native";
 import * as SecureStore from 'expo-secure-store'
 import axios from "axios";
+import { HOST } from '@env'
 
 const { width, height } = Dimensions.get('screen')
 export default function Sign({ navigation }) {
@@ -24,10 +25,10 @@ export default function Sign({ navigation }) {
     const handleSignup = () => {
         if(data.username.length > 0 && data.password.length > 0) {
 
-            axios.post('http://192.168.0.125:3000/getUser', {username: data.username})
+            axios.post(`http://${HOST}:3000/getUser`, {username: data.username})
             .then(res => {
                 if(res.data.success) {
-                    axios.post('http://192.168.0.125:3000/verifyUser', {username: data.username, password: data.password})
+                    axios.post(`http://${HOST}:3000/verifyUser`, {username: data.username, password: data.password})
                     .then(res1  => {
                         if(res1.data.added) {
                             SecureStore.setItemAsync('user', JSON.stringify(data))

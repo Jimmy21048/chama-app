@@ -3,20 +3,23 @@ import * as Progress from 'react-native-progress';
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { HOST } from '@env'
 
 const { height, width } = Dimensions.get('screen')
 export default function Home({ navigation, route }) {
     const { user, pwd } = route.params
     const[users, setUsers] = useState([])
     const[myData, setMyData] = useState({
-        weekly: 1
+        weekly: 1,
+        metaData: []
     })
-
     const[progress, setProgress] = useState(0.5)
+    const[totalAmount, setTotalAmount] = useState(0)
+    const[savings, setSavings] = useState(0)
     const total = 1000
 
     useEffect(() => {
-        axios.get('http://192.168.0.125:3000/getUsers')
+        axios.get(`http://${HOST}:3000/getUsers`)
         .then(res => {
             if(res.data.success) {
                 setUsers(res.data.success)
@@ -24,8 +27,13 @@ export default function Home({ navigation, route }) {
                 const tempData = res.data.success.filter((item) => {
                     return item.username === user
                 })[0]
-                console.log(tempData.weekly)
+                
                 setMyData(tempData)
+
+                const tempTotal = res.data.success.reduce((sum, item) => sum + item.total, 0)
+
+                setTotalAmount(tempTotal - (tempTotal/10))
+                setSavings((tempTotal/10))
 
             } else {
                 //code for message
@@ -90,10 +98,10 @@ export default function Home({ navigation, route }) {
                     </View>
                     <View style = { styles.card }>
                         <Text style = {{ fontSize: 33 }}>Balance</Text>
-                        <Text style = {{ fontSize: 18, }}>Ksh. 4000.00</Text>
+                        <Text style = {{ fontSize: 18, }}>Ksh. { totalAmount }</Text>
                         <Text style = {{ fontSize: 25 }}>Savings</Text>
-                        <Text style = {{ fontSize: 17 }}>Ksh. 400</Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('history')} style = { styles.history }>
+                        <Text style = {{ fontSize: 17 }}>Ksh. { savings }</Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('history', { mtdt: myData.metaData })} style = { styles.history }>
                             <Text style = {{ fontSize: 18, color: 'white', textAlign: 'center'}}>History</Text>
                         </TouchableOpacity>
                     </View>
