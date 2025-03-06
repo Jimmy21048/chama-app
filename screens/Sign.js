@@ -24,10 +24,10 @@ export default function Sign({ navigation }) {
     const handleSignup = () => {
         if(data.username.length > 0 && data.password.length > 0) {
 
-            axios.post('http://192.168.0.120:3000/getUser', {username: data.username})
+            axios.post('http://192.168.0.125:3000/getUser', {username: data.username})
             .then(res => {
                 if(res.data.success) {
-                    axios.post('http://192.168.0.120:3000/verifyUser', {username: data.username, password: data.password})
+                    axios.post('http://192.168.0.125:3000/verifyUser', {username: data.username, password: data.password})
                     .then(res1  => {
                         if(res1.data.added) {
                             SecureStore.setItemAsync('user', JSON.stringify(data))

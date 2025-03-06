@@ -1,7 +1,7 @@
 import { Platform, SafeAreaView, StyleSheet, Dimensions, Text, View, TouchableOpacity, TextInput, Alert } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Picker } from '@react-native-picker/picker';
 
@@ -13,16 +13,19 @@ export default function Admin({ navigation, route }) {
         amount: 0
     })
     const[loading, setLoading] = useState(false)
+    const[updateLoading, setUpdateLoading] = useState(false)
     const[message, setMessage] = useState('')
     const[users, setUsers] = useState([])
     const[selectedUser, setSelectedUser] = useState('select')
 
-    axios.get('http://192.168.0.120:3000/getUsers')
-    .then(response => {
-        if(response.data.success) {
-            setUsers(response.data.success)
-        }
-    })
+    useEffect(() => {
+        axios.get('http://192.168.0.125:3000/getUsers')
+        .then(response => {
+            if(response.data.success) {
+                setUsers(response.data.success)
+            }
+        })
+    }, [loading, updateLoading])
 
     const handleAddMember = () => {
                 Alert.alert(
@@ -36,7 +39,7 @@ export default function Admin({ navigation, route }) {
                         {
                             text: "Add",
                             onPress: () => {
-                                axios.post('http://192.168.0.120:3000/userExists', {username: data.username}, setLoading(true))
+                                axios.post('http://192.168.0.125:3000/userExists', {username: data.username}, setLoading(true))
                                 .then(response => {
                                     const exists = response.data.exists
 
@@ -46,7 +49,7 @@ export default function Admin({ navigation, route }) {
                                             setMessage('')
                                         }, 5000)
                                     } else {
-                                        axios.post('http://192.168.0.120:3000/addUser', {username: data.username})
+                                        axios.post('http://192.168.0.125:3000/addUser', {username: data.username})
                                         .then(res => {
                                             if(res.data.added) {
                                                 setMessage('Member Successfully Added')
@@ -70,7 +73,31 @@ export default function Admin({ navigation, route }) {
     }
 
     const handleUpdateAmount = () => {
-        console.log(data.amount, selectedUser)
+        setUpdateLoading(true)
+        const date = new Date().toLocaleDateString()
+        
+        const metaData = {
+            date: date,
+            amount: data.amount
+        }
+
+        const userItem = users.filter((user) => {
+            return user.username === selectedUser
+        })[0]
+
+        
+        if(data.amount > 0 && userItem) {
+            const parsedMetaData = JSON.parse(userItem.metaData)
+            console.log(parsedMetaData)
+            parsedMetaData.push(metaData)
+            // console.log(parsedMetaData)
+            axios.post('http://192.168.0.125:3000/updateAmount', 
+                {username: userItem.username, metaData: JSON.stringify(parsedMetaData), amount: data.amount})
+            .then(res => {
+                setUpdateLoading(false)
+                // console.log(res.data)
+            })
+        }
     }
 
     return (
@@ -111,7 +138,7 @@ export default function Admin({ navigation, route }) {
                     </Picker>
                     <TextInput style = { styles.input } placeholder="Amount..." value={data.amount} onChangeText={(text) => setData({...data, amount: text})} />
                     <TouchableOpacity disabled = {loading ? true : false} onPress={handleUpdateAmount} activeOpacity={0.2} style = { styles.btnChange }>
-                        { loading ? <Text>Checking...</Text>: <Text>Update Amount</Text> }
+                        { updateLoading ? <Text>Checking...</Text>: <Text>Update Amount</Text> }
                     </TouchableOpacity>
                 </View>
             </View>

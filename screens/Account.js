@@ -1,14 +1,37 @@
 import { View, Text, StyleSheet, SafeAreaView, Platform, TouchableOpacity, Dimensions } from "react-native";
 import * as Progress from 'react-native-progress';
 import { MaterialIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const { height, width } = Dimensions.get('screen')
 export default function Home({ navigation, route }) {
     const { user, pwd } = route.params
+    const[users, setUsers] = useState([])
+    const[myData, setMyData] = useState({
+        weekly: 1
+    })
 
     const[progress, setProgress] = useState(0.5)
     const total = 1000
+
+    useEffect(() => {
+        axios.get('http://192.168.0.125:3000/getUsers')
+        .then(res => {
+            if(res.data.success) {
+                setUsers(res.data.success)
+
+                const tempData = res.data.success.filter((item) => {
+                    return item.username === user
+                })[0]
+                console.log(tempData.weekly)
+                setMyData(tempData)
+
+            } else {
+                //code for message
+            }
+        })
+    }, [])
 
     return (
         <SafeAreaView style = { styles.container } >
@@ -29,7 +52,7 @@ export default function Home({ navigation, route }) {
                         <View style = {{gap: 10, alignItems: 'center', width: 70 }}>
                             <Text style = {{ fontSize: 19 }}>Week</Text>
                             <Progress.Circle
-                                progress={progress} 
+                                progress={myData.weekly / 150} 
                                 size={60} 
                                 thickness={8} 
                                 color="purple" 
@@ -37,8 +60,8 @@ export default function Home({ navigation, route }) {
                         </View>
                         <View style = {styles.textBox}>
                                 <Text style = { styles.nameTitle }>Jimmy</Text>
-                                <Text>Bal: 450</Text>
-                                <Text>Arr: 250</Text>
+                                <Text>Paid: {myData.weekly}</Text>
+                                <Text>Arr: {150 - myData.weekly}</Text>
                         </View>
                         <TouchableOpacity onPress={() => navigation.navigate('more')} activeOpacity={0.2} style = { styles.more }>
                                 <MaterialIcons name="add" size={50} color={'purple'} />
