@@ -8,9 +8,16 @@ export default function History({ route }) {
     
     return (
         <View style = { styles.container }>
+            <View style = { styles.history }>
+                <Text  style = {{ fontSize: 19, fontWeight: 700 }}>DATE</Text>
+                <Text  style = {{ fontSize: 19, fontWeight: 700 }}>AMOUNT</Text>
+            </View>
             {
-                history.map(item => {
-                    return <Text style = {{ fontSize: 19, fontWeight: 700 }}>{item.date} {item.amount}</Text> 
+                history.map((item, index) => {
+                    return <View key = {index} style = {styles.history}>
+                        <Text  style = {{ fontSize: 19, fontWeight: 600 }}>{item.date}</Text>
+                        <Text  style = {{ fontSize: 19, fontWeight: 600 }}>{item.amount}</Text>
+                    </View> 
                 })
             }
         </View>
@@ -20,5 +27,9 @@ export default function History({ route }) {
 const styles = StyleSheet.create({
     container: {
         padding: 20
+    },
+    history: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
     }
 })

@@ -19,13 +19,14 @@ export default function Admin({ navigation, route }) {
     const[users, setUsers] = useState([])
     const[selectedUser, setSelectedUser] = useState('select')
 
-    
     useEffect(() => {
         axios.get(`http://${HOST}:3000/getUsers`)
         .then(response => {
             if(response.data.success) {
                 setUsers(response.data.success)
             }
+        }).catch(err => {
+            console.log(err)
         })
     }, [loading, updateLoading])
 
@@ -63,7 +64,7 @@ export default function Admin({ navigation, route }) {
                                     }
                                     setLoading(false)
                                 }).catch(err => {
-                                    setMessage('Upload Failed')
+                                    setMessage('Upload Failed ' + err)
                                     setTimeout(() => {
                                         setMessage('')
                                     }, 5000)
@@ -89,16 +90,26 @@ export default function Admin({ navigation, route }) {
 
         
         if(data.amount > 0 && userItem) {
-            const parsedMetaData = JSON.parse(userItem.metaData)
-            console.log(parsedMetaData)
+            const parsedMetaData = JSON.parse(userItem.metaData) 
             parsedMetaData.push(metaData)
-            // console.log(parsedMetaData)
             axios.post(`http://${HOST}:3000/updateAmount`, 
                 {username: userItem.username, metaData: JSON.stringify(parsedMetaData), amount: data.amount})
             .then(res => {
                 setUpdateLoading(false)
                 // console.log(res.data)
             })
+        } else {
+            Alert.alert(
+                'Error Updating!',
+                'Please Select a valid Member or Amount',
+                [
+                    {
+                        text: "OK",
+                        style: "cancel"
+                    }
+                ]
+            )
+            setUpdateLoading(false)
         }
     }
 

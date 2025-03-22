@@ -67,11 +67,11 @@ export default function Home({ navigation, route }) {
                                 showsText={true}  />
                         </View>
                         <View style = {styles.textBox}>
-                                <Text style = { styles.nameTitle }>Jimmy</Text>
+                                <Text style = { styles.nameTitle }>YOU</Text>
                                 <Text>Paid: {myData.weekly}</Text>
                                 <Text>Arr: {150 - myData.weekly}</Text>
                         </View>
-                        <TouchableOpacity onPress={() => navigation.navigate('more')} activeOpacity={0.2} style = { styles.more }>
+                        <TouchableOpacity onPress={() => navigation.navigate('more', { users: users })} activeOpacity={0.2} style = { styles.more }>
                                 <MaterialIcons name="add" size={50} color={'purple'} />
                         </TouchableOpacity>
                     </View>

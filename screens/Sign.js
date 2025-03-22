@@ -23,6 +23,10 @@ export default function Sign({ navigation }) {
     checkAccount()
 
     const handleSignup = () => {
+        setData({
+            username: data.username.trimEnd(),
+            password: data.password.trimEnd()
+        })
         if(data.username.length > 0 && data.password.length > 0) {
 
             axios.post(`http://${HOST}:3000/getUser`, {username: data.username})
@@ -66,6 +70,10 @@ export default function Sign({ navigation }) {
 
     const handleLogin = async () => {
         // await SecureStore.deleteItemAsync('user')
+        setData({
+            username: data.username.trimEnd(),
+            password: data.password.trimEnd()
+        })
         const cred = await SecureStore.getItemAsync('user')
         if(data.username === 'admin' && data.password === 'admin') {
             navigation.navigate('admin', { user: 'admin', pwd: 'admin' })
