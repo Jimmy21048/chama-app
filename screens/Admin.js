@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Picker } from '@react-native-picker/picker';
 import { HOST } from '@env'
+import Rounds from "../components/Rounds";
 
 const { width, height } = Dimensions.get('screen')
 export default function Admin({ navigation, route }) {
@@ -153,6 +154,10 @@ export default function Admin({ navigation, route }) {
                     <TouchableOpacity disabled = {loading ? true : false} onPress={handleUpdateAmount} activeOpacity={0.2} style = { styles.btnChange }>
                         { updateLoading ? <Text>Checking...</Text>: <Text>Update Amount</Text> }
                     </TouchableOpacity>
+                </View>
+                <View style={styles.addMember}>
+                    <Text style = {{ fontSize: 18 }}>Rounds</Text>
+                    <Rounds {...{users}} />
                 </View>
             </View>
         </SafeAreaView>
