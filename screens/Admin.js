@@ -157,7 +157,7 @@ export default function Admin({ navigation, route }) {
                 </View>
                 <View style={styles.addMember}>
                     <Text style = {{ fontSize: 18 }}>Rounds</Text>
-                    <Rounds {...{users}} />
+                    <Rounds {...{users, navigation}} />
                 </View>
             </View>
         </SafeAreaView>
