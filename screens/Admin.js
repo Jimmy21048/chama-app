@@ -1,4 +1,4 @@
-import { Platform, SafeAreaView, StyleSheet, Dimensions, Text, View, TouchableOpacity, TextInput, Alert } from "react-native";
+import { Platform, SafeAreaView, StyleSheet, Dimensions, Text, View, TouchableOpacity, TextInput, Alert, ImageBackground } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
@@ -120,6 +120,8 @@ export default function Admin({ navigation, route }) {
     }
 
     return (
+        <ImageBackground
+            source={require('../assets/bgc1.png')} style={styles.background}>
         <SafeAreaView style = { styles.container }>
             <StatusBar style="dark" />
             <View style = { styles.header }>
@@ -136,12 +138,11 @@ export default function Admin({ navigation, route }) {
                 message.text.length > 0 && <Message message={message.text} type={message.type} />
             }
             <View style = { styles.body }>
-                {/* <Text>{message}</Text> */}
                 <View style = {styles.addMember}>
                     <Text style = {{ fontSize: 18 }}>Add Member</Text>
                     <TextInput style = { styles.input } placeholder="username..." value={data.username} onChangeText={(text) => setData({...data, username: text})} />
                     <TouchableOpacity disabled = {loading ? true : false} onPress={handleAddMember} activeOpacity={0.2} style = { styles.btnChange }>
-                        { loading ? <Text>Checking...</Text>: <Text>Add Member</Text> }
+                        { loading ? <Text  style={{color: 'white'}}>Checking...</Text>: <Text style={{color: 'white'}}>Add Member</Text> }
                     </TouchableOpacity>
                 </View>
 
@@ -160,7 +161,7 @@ export default function Admin({ navigation, route }) {
                     </Picker>
                     <TextInput style = { styles.input } placeholder="Amount..." value={data.amount} onChangeText={(text) => setData({...data, amount: text})} />
                     <TouchableOpacity disabled = {loading ? true : false} onPress={handleUpdateAmount} activeOpacity={0.2} style = { styles.btnChange }>
-                        { updateLoading ? <Text>Checking...</Text>: <Text>Update Amount</Text> }
+                        { updateLoading ? <Text style={{color: 'white'}}>Checking...</Text>: <Text style={{color: 'white'}}>Update Amount</Text> }
                     </TouchableOpacity>
                 </View>
                 <View style={styles.addMember}>
@@ -169,10 +170,19 @@ export default function Admin({ navigation, route }) {
                 </View>
             </View>
         </SafeAreaView>
+        </ImageBackground>
+
     )
 }
 
 const styles = StyleSheet.create({
+    background: {
+        flex: 1,
+        resizeMode: 'cover',
+        justifyContent: 'center',
+        width: width,
+        height: height
+    },
     container: {
         paddingTop: Platform.OS === 'android' ? 30 : 5,
         flex: 1
@@ -192,8 +202,9 @@ const styles = StyleSheet.create({
         gap: 10
     },
     addMember: {
-        borderWidth: 1,
-        borderColor: 'black',
+        borderWidth: 2,
+        borderColor: '#B2BEB5',
+        opacity: 0.8,
         padding: 10,
         gap: 10,
         borderRadius: 5
@@ -204,7 +215,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 5,
-        backgroundColor: '#00B9E8'
+        backgroundColor: '#2A3439',
     },
     input: {
         borderWidth: 1,

@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import { Dimensions, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, TextInput, View, Text, TouchableOpacity } from "react-native";
+import { Dimensions, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, TextInput, View, Text, TouchableOpacity, ImageBackground } from "react-native";
 import * as SecureStore from 'expo-secure-store'
 import axios from "axios";
 import { HOST } from '@env'
@@ -97,6 +97,8 @@ export default function Sign({ navigation }) {
 
     }
     return (
+        <ImageBackground 
+            source={require('../assets/bgc1.png')} style={styles.background}>
         <KeyboardAvoidingView style = { styles.container }>
             <StatusBar style="dark" />
             <View style = { styles.header }>
@@ -104,10 +106,10 @@ export default function Sign({ navigation }) {
                 {
                     signup && !accExist ? 
                     <TouchableOpacity style = {styles.option } onPress={() => setSignup(false)}>
-                        <Text style = {{color: '#FF5800', fontWeight: 800}}>Login</Text>
+                        <Text style = {{color: '#C04000', fontWeight: 800}}>Login</Text>
                     </TouchableOpacity> : (!signup && !accExist) &&
                     <TouchableOpacity  style = {styles.option } onPress={() => setSignup(true)}>
-                        <Text style = {{color: '#FF5800', fontWeight: 800}}>Signup</Text>
+                        <Text style = {{color: '#C04000', fontWeight: 800}}>Signup</Text>
                     </TouchableOpacity>
                 }
             </View>
@@ -135,10 +137,20 @@ export default function Sign({ navigation }) {
                     </View>
                 </View>
         </KeyboardAvoidingView>
+        </ImageBackground>
+
     )
 }
 
 const styles = StyleSheet.create({
+    background: {
+        flex: 1,
+        resizeMode: 'cover',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: width,
+        height: height
+    },
     container : {
         flex: 1,
         paddingTop: Platform.OS === 'ios' ? 5 : 35,
@@ -151,7 +163,7 @@ const styles = StyleSheet.create({
         justifyContent : 'space-between'
     },
     option : {
-        borderColor: '#FF5800',
+        borderColor: '#C04000',
         borderWidth: 2,
         height: 30,
         width: 80,
@@ -160,8 +172,9 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     title : {
-        fontSize: 30,
-        fontWeight: 800
+        fontSize: 40,
+        fontWeight: 800,
+        color: '#C04000',
     },
     error : {
         fontSize: 17,
@@ -187,15 +200,16 @@ const styles = StyleSheet.create({
     },
     label : {
         fontSize : 18,
-        fontWeight: 700
+        fontWeight: 700,
+        color: 'black',
     },
     input : {
         height: 50,
         width: width * 0.9,
         borderRadius: 10,
-        borderColor : 'black',
-        borderWidth: 1,
-        fontSize: 18
+        borderColor : '#B2BEB5',
+        borderWidth: 2,
+        fontSize: 18,
     },
     button : {
         alignSelf : 'center',
@@ -204,6 +218,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 10,
-        backgroundColor: '#3B3C36'
+        backgroundColor: '#2A3439',
     }
 })
