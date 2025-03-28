@@ -3,7 +3,7 @@ import { Text, View, StyleSheet, Dimensions } from 'react-native';
 const { width, height } = Dimensions.get('screen')
 export default function Message({ message, type }) {
     return (
-        <View style={[styles.container, {backgroundColor: type === 'error' ? 'red' : 'green'}]}>
+        <View style={[styles.container, {backgroundColor: type === 'error' ? '#990000' : '#00693E'}]}>
             <Text style={styles.message}>{ message }</Text>
         </View>
     )

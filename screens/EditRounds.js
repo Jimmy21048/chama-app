@@ -1,15 +1,19 @@
 import { View, Text, StyleSheet, TextInput, ScrollView, Dimensions, Alert } from 'react-native'
 import { useState } from 'react'
 import Button from '../components/Button'
+import axios from 'axios'
+import { HOST } from '@env'
+import Message from '../components/Message'
 
 const { width, height } = Dimensions.get('screen')
 export default function EditRounds({ route }) {
     const { users } = route.params
-    const[userList, setUserList] = useState(users)
+    const[userList, setUserList] = useState([...users])
     const[changedUsers, setChangedUsers] = useState([...users])
     const[updatedRounds, setUpdatedRounds] = useState([])
     const[searchParam, setSearchParam] = useState('')
     const[updateRounds, setUpdateRounds] = useState(false)
+    const[message, setMessage] = useState({text: '', type: ''})
     
     const handleSearchMember = (val) => {
         setSearchParam(val)
@@ -87,9 +91,23 @@ export default function EditRounds({ route }) {
                     {
                         text: "Update",
                         onPress: () => {
-                            axios.post(`http://${HOST}:3001/updateRounds`, {users: updatedRounds})
+                            axios.post(`http://${HOST}:3000/updateRounds`, {users: updatedRounds})
                             .then(response => {
+                                if(response.data.success) {
+                                    setMessage({text: 'Rounds Updated Successfully', type: 'success'})
+                                    setTimeout(() => {
+                                        setMessage({text: '', type: ''})
+                                    }, 5000)
+                                    setUpdateRounds(false)
+                                    setUpdatedRounds([])
+                                    setUserList(changedUsers)
+                                } else {
+                                    setMessage({text: 'Error Updating Rounds', type: 'error'})
+                                    setTimeout(() => {
+                                        setMessage({text: '', type: ''})
+                                    }, 5000)
 
+                                }
                             })
                         }
                     }
@@ -108,13 +126,17 @@ export default function EditRounds({ route }) {
                     <Button text={'UPDATE'} height={40} width={width * 0.2} br={10} bgc={'green'} onPress={handleUpdateRounds} />
                 }
             </View>
+            {
+                message.text !== '' && 
+                <Message message={message.text} type={message.type} />
+            }
             <ScrollView style={{flexGrow: 1}}>
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, backgroundColor: 'gray', padding: 5}}>
                     <Text style={styles.text}>Username</Text>
                     <Text style={styles.text}>Round</Text>
                 </View>
                 {
-                    userList.sort((a,b) => a.round - b.round).map((user, index) => {
+                    userList.sort((a,b) => b.round - a.round ).map((user, index) => {
                         return (
                             <View key={index} style={{flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10}}>
                                 <Text  style={styles.text}>{user.username}</Text>
