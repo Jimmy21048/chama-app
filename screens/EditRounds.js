@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, ScrollView, Dimensions } from 'react-native'
+import { View, Text, StyleSheet, TextInput, ScrollView, Dimensions, Alert } from 'react-native'
 import { useState } from 'react'
 import Button from '../components/Button'
 
@@ -6,22 +6,23 @@ const { width, height } = Dimensions.get('screen')
 export default function EditRounds({ route }) {
     const { users } = route.params
     const[userList, setUserList] = useState(users)
-    const[changedUsers, setChangedUsers] = useState(users)
+    const[changedUsers, setChangedUsers] = useState([...users])
     const[updatedRounds, setUpdatedRounds] = useState([])
     const[searchParam, setSearchParam] = useState('')
     const[updateRounds, setUpdateRounds] = useState(false)
     
     const handleSearchMember = (val) => {
         setSearchParam(val)
-        const filteredUsers = users.filter((user) => {
+        const filteredUsers = changedUsers.filter((user) => {
             return user.username.toLowerCase().includes(val.toLowerCase())
         })
         setUserList(filteredUsers)
     }
 
-    const handleChangeText = (val, index) => {
+    const handleChangeText = async (val, index) => {
         const tempArray = updatedRounds
-        const tempUpdatedUser = users[index]
+        const tempUpdatedUser = await userList.find(user => user.id === index)
+
         if(val > 0 && val !== '') {
             for(let i = 0; i < tempArray.length; i++) {
                 if(tempArray[i].username === tempUpdatedUser.username) {
@@ -30,25 +31,74 @@ export default function EditRounds({ route }) {
             }
             tempArray.push({username: tempUpdatedUser.username, round: val})
             setUpdatedRounds(tempArray)
+
+            setChangedUsers((prev) => {
+                return prev.map(user => {
+                    if(user.username === tempUpdatedUser.username) {
+                        
+                        return {...user, round: val}
+                    } else {
+                        return user
+                    }
+                })
+            }) 
+
             setUpdateRounds(true)
         }
-
     }
 
     const handleUpdateRounds = () => {
-        // console.log(updatedRounds)
-        const tempArray = users
-        for(let i =0; i < tempArray.length; i++) {
-            for(let j = 0; j < updatedRounds.length; j++) {
-                if(tempArray[i].username === updatedRounds[j].username) {
-                    // console.log(tempArray[i].round, updatedRounds[j].round)
-                    tempArray[i].round = updatedRounds[j].round
-                    // console.log(tempArray[i].round)
-                }
+        let tempArray = changedUsers.sort((a, b) => a.round - b.round)
+        let roundErrors = []
+        
+        for(let i = 0; i < tempArray.length; i++) {
+            let x = tempArray.find(item => Number(item.round) === i + 1)
+            if(x === undefined) {
+                roundErrors.push("Round " + (i+1) + " is missing")
             }
+
+            if(Number(tempArray[i].round) < 1) {
+                roundErrors.push(`${tempArray[i].username} has an invalid round number ${tempArray[i].round}`)
+            }
+
+            if(Number(tempArray[i].round) > tempArray.length) {
+                roundErrors.push(`${tempArray[i].username}'s round exceeds the number of members`)
+            }
+
+            let occurs = tempArray.filter(item => Number(item.round) === (i + 1)).length
+            if(occurs > 1) {
+                roundErrors.push(`Round ${i + 1} has been assigned ${occurs} times`)
+            }
+
         }
 
-        console.log(tempArray)
+        if(roundErrors.length > 0) {
+            Alert.alert('Errors', roundErrors.join('\n'))
+            return
+        } else {
+            Alert.alert(
+                'Update Rounds',
+                `The following members will be updated: ${updatedRounds.map(item => `${item.username} : Round ${item.round}`).join('\n')}`,
+                [
+                    {
+                        text: "Cancel",
+                        style: "cancel"
+                    },
+                    {
+                        text: "Update",
+                        // onPress: () => {
+                        //     updatedRounds.forEach(async (user) => {
+                        //         const response = await axios.post(`http://${HOST}:3000/updateRound`, {username: user.username, round: user.round})
+                        //         if(response.data.updated) {
+                        //             setUpdateRounds(false)
+                        //         }
+                        //     })
+                        // }
+                    }
+                ]
+            )
+        }
+
     }
 
     return (
@@ -70,7 +120,7 @@ export default function EditRounds({ route }) {
                         return (
                             <View key={index} style={{flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10}}>
                                 <Text  style={styles.text}>{user.username}</Text>
-                                <TextInput style={styles.input} defaultValue={user.round.toString()} onChangeText={(val) => handleChangeText(val, index)} />
+                                <TextInput style={styles.input} defaultValue={user.round.toString()} onChangeText={(val) => handleChangeText(val, user.id)} />
                             </View>
                         )
                     })
