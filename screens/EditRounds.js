@@ -4,10 +4,11 @@ import Button from '../components/Button'
 import axios from 'axios'
 import { HOST } from '@env'
 import Message from '../components/Message'
+import { useUsers } from '../helpers/UsersContext'
 
 const { width, height } = Dimensions.get('screen')
-export default function EditRounds({ route }) {
-    const { users } = route.params
+export default function EditRounds() {
+    const { users, setUsers } = useUsers()
     const[userList, setUserList] = useState([...users])
     const[changedUsers, setChangedUsers] = useState([...users])
     const[updatedRounds, setUpdatedRounds] = useState([])
@@ -52,6 +53,8 @@ export default function EditRounds({ route }) {
     }
 
     const handleUpdateRounds = () => {
+        setUserList(changedUsers)
+        setUsers(changedUsers)
         let tempArray = changedUsers.sort((a, b) => a.round - b.round)
         let roundErrors = []
         
@@ -140,7 +143,7 @@ export default function EditRounds({ route }) {
                         return (
                             <View key={index} style={{flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10}}>
                                 <Text  style={styles.text}>{user.username}</Text>
-                                <TextInput style={styles.input} defaultValue={user.round.toString()} onChangeText={(val) => handleChangeText(val, user.id)} />
+                                <TextInput style={styles.input} keyboardType='numeric' defaultValue={user.round.toString()} onChangeText={(val) => handleChangeText(val, user.id)} />
                             </View>
                         )
                     })

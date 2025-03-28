@@ -7,10 +7,12 @@ import { Picker } from '@react-native-picker/picker';
 import { HOST } from '@env'
 import Rounds from "../components/Rounds";
 import Message from "../components/Message";
+import { useUsers } from "../helpers/UsersContext";
 
 const { width, height } = Dimensions.get('screen')
 export default function Admin({ navigation, route }) {
     const { user, pwd } = route.params
+    const { users, setUsers } = useUsers()
     const [data, setData] = useState({
         username: '',
         amount: 0
@@ -19,7 +21,7 @@ export default function Admin({ navigation, route }) {
     const[updateLoading, setUpdateLoading] = useState(false)
     const[message, setMessage] = useState({text: '', type: ''})
     const[displayMessage, setDisplayMessage] = useState(false)
-    const[users, setUsers] = useState([])
+    // const[users, setUsers] = useState([])
     const[selectedUser, setSelectedUser] = useState('select')
 
     useEffect(() => {
@@ -166,7 +168,7 @@ export default function Admin({ navigation, route }) {
                 </View>
                 <View style={styles.addMember}>
                     <Text style = {{ fontSize: 18 }}>Rounds</Text>
-                    <Rounds {...{users, navigation}} />
+                    <Rounds {...{navigation, users}} />
                 </View>
             </View>
         </SafeAreaView>
@@ -204,7 +206,6 @@ const styles = StyleSheet.create({
     addMember: {
         borderWidth: 2,
         borderColor: '#B2BEB5',
-        opacity: 0.8,
         padding: 10,
         gap: 10,
         borderRadius: 5

@@ -7,7 +7,7 @@ export default function Rounds({ navigation, users }) {
     })
 
     const handleEditRounds = () => {
-        navigation.navigate('rounds', { users: users })
+        navigation.navigate('rounds')
     }
 
     return (
@@ -27,7 +27,7 @@ export default function Rounds({ navigation, users }) {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        gap: 50,
+        justifyContent: 'space-between',
         alignItems: 'center'
     }
 })
