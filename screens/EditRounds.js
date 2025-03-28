@@ -86,14 +86,12 @@ export default function EditRounds({ route }) {
                     },
                     {
                         text: "Update",
-                        // onPress: () => {
-                        //     updatedRounds.forEach(async (user) => {
-                        //         const response = await axios.post(`http://${HOST}:3000/updateRound`, {username: user.username, round: user.round})
-                        //         if(response.data.updated) {
-                        //             setUpdateRounds(false)
-                        //         }
-                        //     })
-                        // }
+                        onPress: () => {
+                            axios.post(`http://${HOST}:3001/updateRounds`, {users: updatedRounds})
+                            .then(response => {
+
+                            })
+                        }
                     }
                 ]
             )
@@ -116,7 +114,7 @@ export default function EditRounds({ route }) {
                     <Text style={styles.text}>Round</Text>
                 </View>
                 {
-                    userList.map((user, index) => {
+                    userList.sort((a,b) => a.round - b.round).map((user, index) => {
                         return (
                             <View key={index} style={{flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10}}>
                                 <Text  style={styles.text}>{user.username}</Text>
