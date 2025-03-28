@@ -6,6 +6,7 @@ import axios from "axios";
 import { Picker } from '@react-native-picker/picker';
 import { HOST } from '@env'
 import Rounds from "../components/Rounds";
+import Message from "../components/Message";
 
 const { width, height } = Dimensions.get('screen')
 export default function Admin({ navigation, route }) {
@@ -16,7 +17,8 @@ export default function Admin({ navigation, route }) {
     })
     const[loading, setLoading] = useState(false)
     const[updateLoading, setUpdateLoading] = useState(false)
-    const[message, setMessage] = useState('')
+    const[message, setMessage] = useState({text: '', type: ''})
+    const[displayMessage, setDisplayMessage] = useState(false)
     const[users, setUsers] = useState([])
     const[selectedUser, setSelectedUser] = useState('select')
 
@@ -48,24 +50,25 @@ export default function Admin({ navigation, route }) {
                                     const exists = response.data.exists
 
                                     if(exists) {
-                                        setMessage('User already exists')
+                                        setMessage({text: 'Member Already Exists', type: 'error'})
                                         setTimeout(() => {
-                                            setMessage('')
+                                            setMessage({text: '', type: ''})
                                         }, 5000)
                                     } else {
                                         axios.post(`http://${HOST}:3000/addUser`, {username: data.username})
                                         .then(res => {
                                             if(res.data.added) {
-                                                setMessage('Member Successfully Added')
+                                                setData({username: '', amount: 0})
+                                                setMessage({text: 'Member Added Successfully', type: 'success'})
                                                 setTimeout(() => {
-                                                    setMessage('')
+                                                    setMessage({text: '', type: ''})
                                                 }, 5000) 
                                             }
                                         })
                                     }
                                     setLoading(false)
                                 }).catch(err => {
-                                    setMessage('Upload Failed ' + err)
+                                    setMessage({text: 'Error Adding Member', type: 'error'})
                                     setTimeout(() => {
                                         setMessage('')
                                     }, 5000)
@@ -96,21 +99,23 @@ export default function Admin({ navigation, route }) {
             axios.post(`http://${HOST}:3000/updateAmount`, 
                 {username: userItem.username, metaData: JSON.stringify(parsedMetaData), amount: data.amount})
             .then(res => {
+                setMessage({text: 'Amount Updated', type: 'success'})
+                setTimeout(() => {
+                    setMessage({text: '', type: ''})
+                }, 5000)
+
+                setData({username: '', amount: 0})
+                setSelectedUser('select')
                 setUpdateLoading(false)
-                // console.log(res.data)
             })
         } else {
-            Alert.alert(
-                'Error Updating!',
-                'Please Select a valid Member or Amount',
-                [
-                    {
-                        text: "OK",
-                        style: "cancel"
-                    }
-                ]
-            )
+            setMessage({text: 'Please Select a valid Member or Amount', type: 'error'})
+            setTimeout(() => {
+                setMessage({text: '', type: ''})
+            }, 5000)
+            setData({username: '', amount: 0})
             setUpdateLoading(false)
+            
         }
     }
 
@@ -127,8 +132,11 @@ export default function Admin({ navigation, route }) {
                     <MaterialIcons name="settings" color={'black'} size={40} />
                 </TouchableOpacity>
             </View>
+            {
+                message.text.length > 0 && <Message message={message.text} type={message.type} />
+            }
             <View style = { styles.body }>
-                <Text>{message}</Text>
+                {/* <Text>{message}</Text> */}
                 <View style = {styles.addMember}>
                     <Text style = {{ fontSize: 18 }}>Add Member</Text>
                     <TextInput style = { styles.input } placeholder="username..." value={data.username} onChangeText={(text) => setData({...data, username: text})} />
