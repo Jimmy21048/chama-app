@@ -1,13 +1,13 @@
 import { View, Text, StyleSheet } from "react-native";
 import Button from "./Button";
 
-export default function Rounds({ navigation, users }) {
+export default function Rounds({ navigation, users, user, pwd }) {
     const currentRound = users.filter((user) => {
         return user.round === 1
     })
 
     const handleEditRounds = () => {
-        navigation.navigate('rounds')
+        navigation.navigate('rounds', {user, pwd})
     }
 
     return (

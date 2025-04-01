@@ -1,4 +1,4 @@
-import { Platform, SafeAreaView, StyleSheet, Dimensions, Text, View, TouchableOpacity, TextInput, Alert, ImageBackground } from "react-native";
+import { Platform, SafeAreaView, StyleSheet, Dimensions, Text, View, TouchableOpacity, TextInput, Alert, ImageBackground, ScrollView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { HOST } from '@env'
 import Rounds from "../components/Rounds";
 import Message from "../components/Message";
 import { useUsers } from "../helpers/UsersContext";
+import Advanced from "../components/AdvancedRoundSettings";
 
 const { width, height } = Dimensions.get('screen')
 export default function Admin({ navigation, route }) {
@@ -126,51 +127,57 @@ export default function Admin({ navigation, route }) {
             source={require('../assets/bgc1.png')} style={styles.background}>
         <SafeAreaView style = { styles.container }>
             <StatusBar style="dark" />
-            <View style = { styles.header }>
-                <Text style = {{ 
-                    fontSize: 30, borderColor: '#000000', 
-                    borderWidth: 4, width: 50, height: 50, 
-                    textAlign: 'center', borderRadius: 50 }}
-                >{user.at(0)}</Text>
-                <TouchableOpacity activeOpacity={0.6} onPress={() => navigation.navigate('modal', { user: user, pwd: pwd })} >
-                    <MaterialIcons name="settings" color={'black'} size={40} />
-                </TouchableOpacity>
-            </View>
-            {
-                message.text.length > 0 && <Message message={message.text} type={message.type} />
-            }
-            <View style = { styles.body }>
-                <View style = {styles.addMember}>
-                    <Text style = {{ fontSize: 18 }}>Add Member</Text>
-                    <TextInput style = { styles.input } placeholder="username..." value={data.username} onChangeText={(text) => setData({...data, username: text})} />
-                    <TouchableOpacity disabled = {loading ? true : false} onPress={handleAddMember} activeOpacity={0.2} style = { styles.btnChange }>
-                        { loading ? <Text  style={{color: 'white'}}>Checking...</Text>: <Text style={{color: 'white'}}>Add Member</Text> }
+            <ScrollView style = {{flexGrow: 1}}>
+                <View style = { styles.header }>
+                    <Text style = {{ 
+                        fontSize: 30, borderColor: '#000000', 
+                        borderWidth: 4, width: 50, height: 50, 
+                        textAlign: 'center', borderRadius: 50 }}
+                    >{user.at(0)}</Text>
+                    <TouchableOpacity activeOpacity={0.6} onPress={() => navigation.navigate('modal', { user: user, pwd: pwd })} >
+                        <MaterialIcons name="settings" color={'black'} size={40} />
                     </TouchableOpacity>
                 </View>
+                {
+                    message.text.length > 0 && <Message message={message.text} type={message.type} />
+                }
+                <View style = { styles.body }>
+                    <View style = {styles.addMember}>
+                        <Text style = {{ fontSize: 18 }}>Add Member</Text>
+                        <TextInput style = { styles.input } placeholder="username..." value={data.username} onChangeText={(text) => setData({...data, username: text})} />
+                        <TouchableOpacity disabled = {loading ? true : false} onPress={handleAddMember} activeOpacity={0.2} style = { styles.btnChange }>
+                            { loading ? <Text  style={{color: 'white'}}>Checking...</Text>: <Text style={{color: 'white'}}>Add Member</Text> }
+                        </TouchableOpacity>
+                    </View>
 
-                <View style = { styles.addMember } >
-                    <Text style = {{ fontSize: 18 }}>Update weekly Payment</Text>
-                    <Picker
-                    style = { styles.pickers }
-                    selectedValue={selectedUser}
-                    onValueChange={(val) => setSelectedUser(val)} >
-                    <Picker.Item key={'admin'} label="Select Member" value="" />
-                    {
-                        users.map(user => {
-                            return <Picker.Item key={user.id} label={user.username} value={user.username} />
-                        })
-                    }
-                    </Picker>
-                    <TextInput style = { styles.input } placeholder="Amount..." value={data.amount} onChangeText={(text) => setData({...data, amount: text})} />
-                    <TouchableOpacity disabled = {loading ? true : false} onPress={handleUpdateAmount} activeOpacity={0.2} style = { styles.btnChange }>
-                        { updateLoading ? <Text style={{color: 'white'}}>Checking...</Text>: <Text style={{color: 'white'}}>Update Amount</Text> }
-                    </TouchableOpacity>
+                    <View style = { styles.addMember } >
+                        <Text style = {{ fontSize: 18 }}>Update weekly Payment</Text>
+                        <Picker
+                        style = { styles.pickers }
+                        selectedValue={selectedUser}
+                        onValueChange={(val) => setSelectedUser(val)} >
+                        <Picker.Item key={'admin'} label="Select Member" value="" />
+                        {
+                            users.map(user => {
+                                return <Picker.Item key={user.id} label={user.username} value={user.username} />
+                            })
+                        }
+                        </Picker>
+                        <TextInput style = { styles.input } placeholder="Amount..." value={data.amount} onChangeText={(text) => setData({...data, amount: text})} />
+                        <TouchableOpacity disabled = {loading ? true : false} onPress={handleUpdateAmount} activeOpacity={0.2} style = { styles.btnChange }>
+                            { updateLoading ? <Text style={{color: 'white'}}>Checking...</Text>: <Text style={{color: 'white'}}>Update Amount</Text> }
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.addMember}>
+                        <Text style = {{ fontSize: 18 }}>Rounds</Text>
+                        <Rounds {...{navigation, users, user, pwd}} />
+                    </View>
+                    <View style = {styles.addMember}>
+                        <Text style = {{ fontSize: 18 }}>Advanced Round Settings</Text>
+                        <Advanced />
+                    </View>
                 </View>
-                <View style={styles.addMember}>
-                    <Text style = {{ fontSize: 18 }}>Rounds</Text>
-                    <Rounds {...{navigation, users}} />
-                </View>
-            </View>
+            </ScrollView>
         </SafeAreaView>
         </ImageBackground>
 
@@ -208,7 +215,7 @@ const styles = StyleSheet.create({
         borderColor: '#B2BEB5',
         padding: 10,
         gap: 10,
-        borderRadius: 5
+        borderRadius: 5,
     },
     btnChange: {
         width: 150,

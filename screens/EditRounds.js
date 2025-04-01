@@ -7,7 +7,8 @@ import Message from '../components/Message'
 import { useUsers } from '../helpers/UsersContext'
 
 const { width, height } = Dimensions.get('screen')
-export default function EditRounds() {
+export default function EditRounds({ navigation, route }) {
+    const { user, pwd } = route.params
     const { users, setUsers } = useUsers()
     const[userList, setUserList] = useState([...users])
     const[changedUsers, setChangedUsers] = useState([...users])
@@ -104,6 +105,7 @@ export default function EditRounds() {
                                     setUpdateRounds(false)
                                     setUpdatedRounds([])
                                     setUserList(changedUsers)
+                                    navigation.navigate('admin', { user, pwd })
                                 } else {
                                     setMessage({text: 'Error Updating Rounds', type: 'error'})
                                     setTimeout(() => {
