@@ -3,28 +3,55 @@ import Button from "./Button";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { HOST } from '@env'
+import Message from "./Message";
 
 const { width } = Dimensions.get('screen')
 export default function Advanced() {
     const[rounds, setRounds] = useState({days: 30, date: '01/01/2025'})
     const[disabled, setDisabled] = useState(true)
+    const[message, setMessage] = useState({text: '', type: ''})
     useEffect(() => {
         axios.get(`http://${HOST}:3000/getRoundDetails`)
         .then(response => {
-
+            if(response.data.success) {
+                const data = response.data.success[0]
+                setRounds({days: data.round_days, date: data.start_date})
+            } else {
+                setMessage({ message: 'Error Loading Details', type: 'error'})
+                setTimeout(() => {
+                    setMessage({message: '', type: ''})
+                }, 5000)
+            }
         })
     }, [])
+
+    const handleDisableInput = () => {
+        setDisabled(!disabled)
+    }
+
+    const handleChangeRounds = () => {
+        axios.post(`http://${HOST}:3000/changeRoundDetails`, { rounds })
+        .then(response => {
+            if(response.data.success) {
+                setDisabled(true)
+            }
+        })
+    }
     return (
         <View style = { styles.container }>
-            <Button text={'EDIT'} height={35} width={80} br={10} bgc={'#990000'}  />
+        {/* {
+            message.text !== '' && <Message message={message.text} type={message.type} />
+        } */}
+            <Button text={'EDIT'} height={35} width={80} br={10} bgc={'#990000'} onPress={handleDisableInput}  />
             <View style = {{flexDirection: 'row', justifyContent: 'space-between', width: 300}}>
                 <Text style = { styles.text }>Days per Round: </Text>
-                <TextInput disabled={disabled ? 'on' : 'off'} value={rounds.days.toString()} style = { styles.input } />
+                <TextInput editable={disabled ? false : true} value={rounds.days.toString()} style = { styles.input } onChangeText={(val) => setRounds({...rounds, days: val})} />
             </View>
             <View style = {{flexDirection: 'row', justifyContent: 'space-between', width: 300}}>
                 <Text style = { styles.text }>Chama start Date:</Text>
-                <TextInput  value={rounds.date} style = { styles.input } />
+                <TextInput editable={disabled ? false : true} value={rounds.date} style = { styles.input } onChangeText={(val) => setRounds({...rounds, date: val})}/>
             </View>
+            <Button text={'SAVE CHANGES'} height={40} width={150} br={10} bgc={'#2A3439'} onPress={handleChangeRounds} />
         </View>
     )
 }

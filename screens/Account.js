@@ -4,6 +4,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { HOST } from '@env'
+import { getRoundPerson } from '../functions/functions'
+import { daysToMyRound } from "../functions/functions";
 
 const { height, width } = Dimensions.get('screen')
 export default function Home({ navigation, route }) {
@@ -16,6 +18,7 @@ export default function Home({ navigation, route }) {
     const[progress, setProgress] = useState(0.5)
     const[totalAmount, setTotalAmount] = useState(0)
     const[savings, setSavings] = useState(0)
+    const[rounds, setRounds] = useState({days: 0, date: '01/01/2025'})
     const total = 1000
 
     useEffect(() => {
@@ -35,11 +38,31 @@ export default function Home({ navigation, route }) {
                 setTotalAmount(tempTotal - (tempTotal/10))
                 setSavings((tempTotal/10))
 
+                //new
+
+
             } else {
                 //code for message
             }
         })
+
+        axios.get(`http://${HOST}:3000/getRoundDetails`)
+        .then(response => {
+            if(response.data.success) {
+                const data = response.data.success[0]
+                setRounds({days: data.round_days, date: data.start_date})
+            }
+        })
+
     }, [])
+
+    const roundNumber = getRoundPerson(30, '2025-02-01')
+    const roundUser = users.filter(person => {
+        return person.round === roundNumber
+    })
+
+    const myDay = daysToMyRound(2, '2025-02-01', 30)
+    console.log(myDay)
 
     return (
         <SafeAreaView style = { styles.container } >
@@ -86,14 +109,14 @@ export default function Home({ navigation, route }) {
                                     showsText={true}  />
                         </View>
                         <View>
-                            <Text style = {{fontWeight: 800}}>Round Beneficiary: Jimmy</Text>
+                            <Text style = {{fontWeight: 800}}>Round Beneficiary: { roundUser && roundUser[0].username }</Text>
                             <Text>Total Amount: 1300</Text>
                             <Text>Current Balance: 1300</Text>
                         </View>
                     </View>
                     <View style = {{height: height * 0.1}}>
                         <Text style = {{ fontSize: 17 }}>Stats</Text>
-                        <Text>Weeks to your round: 20</Text>
+                        <Text>Days to my round: { myDay && myDay }</Text>
                         <Text>Amount to your next round: 650</Text>
                     </View>
                     <View style = { styles.card }>
