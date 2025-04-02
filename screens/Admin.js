@@ -9,6 +9,7 @@ import Rounds from "../components/Rounds";
 import Message from "../components/Message";
 import { useUsers } from "../helpers/UsersContext";
 import Advanced from "../components/AdvancedRoundSettings";
+import { getDaysNumber } from "../functions/functions";
 
 const { width, height } = Dimensions.get('screen')
 export default function Admin({ navigation, route }) {
@@ -22,19 +23,34 @@ export default function Admin({ navigation, route }) {
     const[updateLoading, setUpdateLoading] = useState(false)
     const[message, setMessage] = useState({text: '', type: ''})
     const[displayMessage, setDisplayMessage] = useState(false)
-    // const[users, setUsers] = useState([])
     const[selectedUser, setSelectedUser] = useState('select')
+    const[rounds, setRounds] = useState({days: 30, date: '2025-01-01'})
+    const {todayNumber} = getDaysNumber(rounds.date)
 
     useEffect(() => {
         axios.get(`http://${HOST}:3000/getUsers`)
         .then(response => {
             if(response.data.success) {
+                const thisWeek = Math.ceil(todayNumber / 7)
+                const thisRound = Math.ceil(todayNumber / rounds.days)
+                
+                const notUpdated = response.data.success.filter(user => {
+                    return user.week < thisWeek || user.month < thisRound
+                }).map(user => {
+                    return { username: user.username, week: user.week, month: user.month, weekDiff: thisWeek - user.week, monthDiff : thisRound - user.month, thisWeek, thisRound }
+                })
+                
+                axios.post(`http://${HOST}:3000/updateUsers`, { notUpdated })
+                .then(response1 => {
+
+                })
+
                 setUsers(response.data.success)
             }
         }).catch(err => {
             console.log(err)
         })
-    }, [loading, updateLoading])
+    }, [loading, updateLoading, rounds])
 
     const handleAddMember = () => {
                 Alert.alert(
@@ -100,7 +116,7 @@ export default function Admin({ navigation, route }) {
             const parsedMetaData = JSON.parse(userItem.metaData) 
             parsedMetaData.push(metaData)
             axios.post(`http://${HOST}:3000/updateAmount`, 
-                {username: userItem.username, metaData: JSON.stringify(parsedMetaData), amount: data.amount})
+                {username: userItem.username, metaData: JSON.stringify(parsedMetaData), amount: data.amount, todayNumber, roundDays : rounds.days})
             .then(res => {
                 setMessage({text: 'Amount Updated', type: 'success'})
                 setTimeout(() => {
@@ -174,7 +190,7 @@ export default function Admin({ navigation, route }) {
                     </View>
                     <View style = {styles.addMember}>
                         <Text style = {{ fontSize: 18 }}>Advanced Round Settings</Text>
-                        <Advanced />
+                        <Advanced {...{rounds, setRounds}} />
                     </View>
                 </View>
             </ScrollView>

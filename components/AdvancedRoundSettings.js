@@ -6,8 +6,7 @@ import { HOST } from '@env'
 import Message from "./Message";
 
 const { width } = Dimensions.get('screen')
-export default function Advanced() {
-    const[rounds, setRounds] = useState({days: 30, date: '01/01/2025'})
+export default function Advanced({ rounds, setRounds }) {
     const[disabled, setDisabled] = useState(true)
     const[message, setMessage] = useState({text: '', type: ''})
     useEffect(() => {

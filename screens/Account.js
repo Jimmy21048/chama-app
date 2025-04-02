@@ -4,8 +4,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { HOST } from '@env'
-import { getRoundPerson } from '../functions/functions'
-import { daysToMyRound } from "../functions/functions";
+import { getRoundPerson, daysToMyRound, getDaysNumber } from '../functions/functions'
+
 
 const { height, width } = Dimensions.get('screen')
 export default function Home({ navigation, route }) {
@@ -61,7 +61,9 @@ export default function Home({ navigation, route }) {
         return person.round === roundNumber
     })
 
-    const myDay = daysToMyRound(2, '2025-02-01', 30)
+    const myDay = daysToMyRound(3, '2025-02-01', 30)
+    // console.log(myDay)
+    const { todayNumber, startDayNumber } = getDaysNumber('2025-02-01')
     console.log(myDay)
 
     return (
