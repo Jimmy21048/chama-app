@@ -10,18 +10,7 @@ export default function Advanced({ rounds, setRounds }) {
     const[disabled, setDisabled] = useState(true)
     const[message, setMessage] = useState({text: '', type: ''})
     useEffect(() => {
-        axios.get(`http://${HOST}:3000/getRoundDetails`)
-        .then(response => {
-            if(response.data.success) {
-                const data = response.data.success[0]
-                setRounds({days: data.round_days, date: data.start_date})
-            } else {
-                setMessage({ message: 'Error Loading Details', type: 'error'})
-                setTimeout(() => {
-                    setMessage({message: '', type: ''})
-                }, 5000)
-            }
-        })
+
     }, [])
 
     const handleDisableInput = () => {

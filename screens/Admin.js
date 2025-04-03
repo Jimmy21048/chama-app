@@ -9,7 +9,7 @@ import Rounds from "../components/Rounds";
 import Message from "../components/Message";
 import { useUsers } from "../helpers/UsersContext";
 import Advanced from "../components/AdvancedRoundSettings";
-import { getDaysNumber } from "../functions/functions";
+import { getDaysNumber, getRoundDetails, getUsers, updateUsers } from "../functions/functions";
 
 const { width, height } = Dimensions.get('screen')
 export default function Admin({ navigation, route }) {
@@ -25,32 +25,53 @@ export default function Admin({ navigation, route }) {
     const[displayMessage, setDisplayMessage] = useState(false)
     const[selectedUser, setSelectedUser] = useState('select')
     const[rounds, setRounds] = useState({days: 30, date: '2025-01-01'})
-    const {todayNumber} = getDaysNumber(rounds.date)
 
+    
     useEffect(() => {
-        axios.get(`http://${HOST}:3000/getUsers`)
-        .then(response => {
-            if(response.data.success) {
-                const thisWeek = Math.ceil(todayNumber / 7)
-                const thisRound = Math.ceil(todayNumber / rounds.days)
-                
-                const notUpdated = response.data.success.filter(user => {
-                    return user.week < thisWeek || user.month < thisRound
-                }).map(user => {
-                    return { username: user.username, week: user.week, month: user.month, weekDiff: thisWeek - user.week, monthDiff : thisRound - user.month, thisWeek, thisRound }
-                })
-                
-                axios.post(`http://${HOST}:3000/updateUsers`, { notUpdated })
-                .then(response1 => {
+        const fetchData = async () => {
+            //fetch users and the details about the rounds
+            let usersDetails = await getUsers()
+            const roundDetails = await getRoundDetails()
+            if(usersDetails.success) {
+                if(roundDetails) {
+                    setRounds({days: roundDetails.round_days, date: roundDetails.start_date})
 
-                })
+                    //get today's number since the start date of the rounds
+                    let tempTodayNO = getDaysNumber(roundDetails.start_date).todayNumber
+                    
+                    const thisWeek = Math.ceil(tempTodayNO / 7)
+                    const thisRound = Math.ceil(tempTodayNO / roundDetails.round_days)
 
-                setUsers(response.data.success)
+                    //filter users whose week and month details are not upto date
+                    const notUpdated = usersDetails.success.filter(user => {
+                        return user.week < thisWeek || user.month < thisRound
+                    }).map(user => {
+                        return { username: user.username, week: user.week, month: user.month, weekDiff: thisWeek - user.week, monthDiff : thisRound - user.month, thisWeek, thisRound }
+                    })
+
+                    if(notUpdated.length > 0) {
+                        //update week and month values for users with outdated values then retrieve the latest users list
+                        const x = await updateUsers(notUpdated)
+                        usersDetails = await getUsers()
+                    }
+                    setUsers(usersDetails.success)
+
+                }else {
+                    setMessage({ text: 'Error Loading Details', type: 'error'})
+                    setTimeout(() => {
+                        setMessage({message: '', type: ''})
+                    }, 5000)
+                }
+            } else {
+                setMessage({ text: usersDetails.fail || "ERROR", type: 'error'})
+                setTimeout(() => {
+                    setMessage({message: '', type: ''})
+                }, 5000)
             }
-        }).catch(err => {
-            console.log(err)
-        })
-    }, [loading, updateLoading, rounds])
+
+        }
+        fetchData()
+    }, [loading, updateLoading])
 
     const handleAddMember = () => {
                 Alert.alert(
@@ -74,7 +95,8 @@ export default function Admin({ navigation, route }) {
                                             setMessage({text: '', type: ''})
                                         }, 5000)
                                     } else {
-                                        axios.post(`http://${HOST}:3000/addUser`, {username: data.username})
+                                        const { todayNumber } = getDaysNumber(rounds.date)
+                                        axios.post(`http://${HOST}:3000/addUser`, {username: data.username, todayNumber})
                                         .then(res => {
                                             if(res.data.added) {
                                                 setData({username: '', amount: 0})
@@ -99,6 +121,7 @@ export default function Admin({ navigation, route }) {
     }
 
     const handleUpdateAmount = () => {
+        const { todayNumber } = getDaysNumber(rounds.date)
         setUpdateLoading(true)
         const date = new Date().toLocaleDateString()
         
@@ -137,7 +160,9 @@ export default function Admin({ navigation, route }) {
             
         }
     }
-
+    // if(loading) {
+    //     return <Text>Loading</Text>
+    // }
     return (
         <ImageBackground
             source={require('../assets/bgc1.png')} style={styles.background}>

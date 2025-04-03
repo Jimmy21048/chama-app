@@ -1,9 +1,9 @@
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dimensions, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, TextInput, View, Text, TouchableOpacity, ImageBackground } from "react-native";
 import * as SecureStore from 'expo-secure-store'
-import axios from "axios";
-import { HOST } from '@env'
+import Message from "../components/Message";
+import { getUser, verifyUser } from "../functions/functions";
 
 const { width, height } = Dimensions.get('screen')
 export default function Sign({ navigation }) {
@@ -12,85 +12,76 @@ export default function Sign({ navigation }) {
         username: '',
         password: ''
     })
-    const[error, setError] = useState(null)
-    const[success, setSuccess] = useState(null)
     const[accExist, setAccExist] = useState(true)
+    const[message, setMessage] = useState({text: '', type: ''})
 
-    const checkAccount = async () => {
-        const cred = await SecureStore.getItemAsync('user')
-        cred === null && setAccExist(false)
-    }
-    checkAccount()
+    useEffect(() => {
+        const checkAccount = async () => {
+            const cred = await SecureStore.getItemAsync('user')
+            cred === null && setAccExist(false)
+        }
+        checkAccount()
+    }, [])
 
-    const handleSignup = () => {
+    const handleSignup = async () => {
         setData({
+            ...data,
             username: data.username.trimEnd(),
-            password: data.password.trimEnd()
         })
-        if(data.username.length > 0 && data.password.length > 0) {
+        if(data.username.trimEnd().length > 0 && data.password.length > 0) {
+            const userDetails = await getUser(data.username.trimEnd())
+            if(userDetails.success) {
+                console.log("part 1")
+                const userVerification = await verifyUser(data.username.trimEnd(), data.password)
+                console.log(userVerification)
+                if(userVerification.success) {
+                    console.log("part 2")
+                    await SecureStore.setItemAsync('user', JSON.stringify(data))
 
-            axios.post(`http://${HOST}:3000/getUser`, {username: data.username})
-            .then(res => {
-                if(res.data.success) {
-                    axios.post(`http://${HOST}:3000/verifyUser`, {username: data.username, password: data.password})
-                    .then(res1  => {
-                        if(res1.data.added) {
-                            SecureStore.setItemAsync('user', JSON.stringify(data))
-                            .then(() => {
-                                setSuccess('SIGN UP SUCCESS')
-                                setTimeout(() => {
-                                    setSuccess(null)
-                                }, 4000)
-                                setAccExist(true)
-                                navigation.navigate('account', { user: data.username, pwd: data.password })
-                            })
-                        } else {
-                            setError('SORRY! OPERATION FAILED')
-                            setTimeout(() => {
-                                setError(null)
-                            }, 4000)
-                        }
-                    })
-                } else {
-                    setError('INVALID CREDENTIALS')
+                    setMessage({text: 'SIGN UP SUCCESS', type: 'success'})
                     setTimeout(() => {
-                        setError(null)
+                        setMessage({text: '', type: ''})
+                    }, 4000)
+
+                    setAccExist(true)
+                    navigation.navigate('account', { user: data.username.trimEnd(), pwd: data.password })
+                } else {
+                    setMessage({text: userVerification.fail || 'ERROR', type: 'error'})
+                    setTimeout(() => {
+                        setMessage({text: '', type: ''})
                     }, 4000)
                 }
-            })
-
-        } else {
-            setError('EMPTY CREDENTIALS')
-            setTimeout(() => {
-                setError(null)
-            }, 4000)
+            } else {
+                setMessage({text: userDetails.fail || 'ERROR', type: 'error'})
+                setTimeout(() => {
+                    setMessage({text: '', type: ''})
+                }, 4000)
+            }
         }
         
     }
 
     const handleLogin = async () => {
         // await SecureStore.deleteItemAsync('user')
-        setData({
-            username: data.username.trimEnd(),
-            password: data.password.trimEnd()
-        })
+
+        //cred for credentials
         const cred = await SecureStore.getItemAsync('user')
-        if(data.username === 'admin' && data.password === 'admin') {
+        if(data.username.trimEnd() === 'admin' && data.password === 'admin') {
             navigation.navigate('admin', { user: 'admin', pwd: 'admin' })
         }else if(cred === null) {
-            setError("NO USER ACCOUNT DETECTED")
+            setMessage({text: 'NO USER ACCOUNT DETECTED', type: 'error'})
             setTimeout(() => {
-                setError(null)
+                setMessage({text: '', type: ''})
             }, 4000)
         }else {
             const parsedCred = JSON.parse(cred)
 
-            if(parsedCred.username === data.username && parsedCred.password === data.password) {
+            if(parsedCred.username === data.username.trimEnd() && parsedCred.password === data.password) {
                 navigation.navigate('account', { user: data.username, pwd: data.password })
             } else {
-                setError("INVALID CREDENTIALS")
+                setMessage({text: 'INVALID CREDENTIALS', type: 'error'})
                 setTimeout(() => {
-                    setError(null)
+                    setMessage({text: '', type: ''})
                 }, 4000)
             }
         }
@@ -113,8 +104,11 @@ export default function Sign({ navigation }) {
                     </TouchableOpacity>
                 }
             </View>
-            { error && <Text style = { styles.error }>{error}</Text> }
-            { success && <Text style = { styles.success }>{success}</Text> }
+            {
+                message.text !== '' && <Message message={message.text} type={message.type} />
+            }
+            {/* { error && <Text style = { styles.error }>{error}</Text> } */}
+            {/* { success && <Text style = { styles.success }>{success}</Text> } */}
                 <View style = { styles.form }>
                     <View style = { styles.inputs }>
                         <View style = {{gap: 10}}>

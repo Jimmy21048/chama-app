@@ -4,7 +4,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { HOST } from '@env'
-import { getRoundPerson, daysToMyRound, getDaysNumber } from '../functions/functions'
+import { getRoundPerson, daysToMyRound, getDaysNumber, getUsers } from '../functions/functions'
+import Message from "../components/Message";
 
 
 const { height, width } = Dimensions.get('screen')
@@ -18,33 +19,35 @@ export default function Home({ navigation, route }) {
     const[progress, setProgress] = useState(0.5)
     const[totalAmount, setTotalAmount] = useState(0)
     const[savings, setSavings] = useState(0)
-    const[rounds, setRounds] = useState({days: 0, date: '01/01/2025'})
+    const[rounds, setRounds] = useState({days: 0, date: '2025-02-01'})
     const total = 1000
+    const[loading, setLoading] = useState(true)
+    const[message, setMessage] = useState({text: '', type: ''})
 
     useEffect(() => {
-        axios.get(`http://${HOST}:3000/getUsers`)
-        .then(res => {
-            if(res.data.success) {
-                setUsers(res.data.success)
+        const fetchData = async () => {
+            const usersDetails = await getUsers()
+            if(usersDetails.success) {
+                setUsers(usersDetails.success)
 
-                const tempData = res.data.success.filter((item) => {
+                const tempData = usersDetails.success.filter((item) => {
                     return item.username === user
                 })[0]
-                
+
                 setMyData(tempData)
-
-                const tempTotal = res.data.success.reduce((sum, item) => sum + item.total, 0)
-
+                const tempTotal = usersDetails.success.reduce((sum, item) => sum + item.total, 0)
                 setTotalAmount(tempTotal - (tempTotal/10))
                 setSavings((tempTotal/10))
 
-                //new
-
-
-            } else {
-                //code for message
+                //continue from here
+            }else {
+                setMessage({ text: usersDetails.fail || "ERROR", type: 'error'})
+                setTimeout(() => {
+                    setMessage({message: '', type: ''})
+                }, 5000)
             }
-        })
+        }
+        fetchData()
 
         axios.get(`http://${HOST}:3000/getRoundDetails`)
         .then(response => {
@@ -64,7 +67,10 @@ export default function Home({ navigation, route }) {
     const myDay = daysToMyRound(3, '2025-02-01', 30)
     // console.log(myDay)
     const { todayNumber, startDayNumber } = getDaysNumber('2025-02-01')
-    console.log(myDay)
+
+    if(loading) {
+        return <Text>Trying</Text>
+    }
 
     return (
         <SafeAreaView style = { styles.container } >
@@ -79,6 +85,9 @@ export default function Home({ navigation, route }) {
                     <MaterialIcons name="settings" color={'black'} size={40} />
                 </TouchableOpacity>
             </View>
+            {
+                message.text !== '' && <Message message={message.text} type={message.type} />
+            }
             <View style = { styles.body }>
                 <View style = { styles.box }>
                     <View style = {{ flexDirection: 'row', gap: 10, alignItems: "flex-end", height: height * 0.12,justifyContent: 'space-between' }}>
