@@ -18,27 +18,27 @@ function getDaysNumber(startDay) {
 }
 
 function getRoundPerson(days, startDay) {
-    const { todayNumber, startDayNumber } = getDaysNumber(startDay)
+    const { todayNumber } = getDaysNumber(startDay)
 
-    const round = Math.ceil((todayNumber - startDayNumber) / days)
+    const round = Math.ceil((todayNumber) / days)
     return round
     
 }
 
 function daysToMyRound(round, startDay, days) {
-    const { todayNumber ,startDayNumber } = getDaysNumber(startDay)
-    const myDay = (round * 30) + startDayNumber
-    return myDay - days
+    const { todayNumber } = getDaysNumber(startDay)
+    const myDay = ((round) * days) - todayNumber
+    // console.log(todayNumber)
+    return myDay
 }
 
 async function getRoundDetails() {
     try {
         const result = await axios.get(`http://${HOST}:3000/getRoundDetails`)
-        const data = result.data.success?.[0] || null
-        return data
+        return result.data
     }catch(err) {
         console.log(err)
-        return null
+        return {fail: "REQUEST FAILED"}
     }
 }
 
@@ -52,9 +52,9 @@ async function getUsers() {
     }
 }
 
-async function updateUsers(notUpdated) {
+async function updateUsers(notUpdated, amount) {
     try {
-        const result = await axios.post(`http://${HOST}:3000/updateUsers`, { notUpdated })  
+        const result = await axios.post(`http://${HOST}:3000/updateUsers`, { notUpdated, amount })  
         const data = result.data.success || null
         return data   
     }catch(err) {

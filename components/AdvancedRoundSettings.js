@@ -9,13 +9,11 @@ const { width } = Dimensions.get('screen')
 export default function Advanced({ rounds, setRounds }) {
     const[disabled, setDisabled] = useState(true)
     const[message, setMessage] = useState({text: '', type: ''})
-    useEffect(() => {
-
-    }, [])
 
     const handleDisableInput = () => {
         setDisabled(!disabled)
     }
+    console.log(rounds)
 
     const handleChangeRounds = () => {
         axios.post(`http://${HOST}:3000/changeRoundDetails`, { rounds })
@@ -36,6 +34,10 @@ export default function Advanced({ rounds, setRounds }) {
                 <TextInput editable={disabled ? false : true} value={rounds.days.toString()} style = { styles.input } onChangeText={(val) => setRounds({...rounds, days: val})} />
             </View>
             <View style = {{flexDirection: 'row', justifyContent: 'space-between', width: 300}}>
+                <Text style = { styles.text }>Amount per Round:</Text>
+                <TextInput editable={disabled ? false : true} value={rounds.amount.toString()} style = { styles.input } onChangeText={(val) => setRounds({...rounds, amount: val})}/>
+            </View>
+            <View style = {{flexDirection: 'row', justifyContent: 'space-between', width: 300}}>
                 <Text style = { styles.text }>Chama start Date:</Text>
                 <TextInput editable={disabled ? false : true} value={rounds.date} style = { styles.input } onChangeText={(val) => setRounds({...rounds, date: val})}/>
             </View>
@@ -46,7 +48,7 @@ export default function Advanced({ rounds, setRounds }) {
 
 const styles = StyleSheet.create({
     container: {
-        height: 300,
+        height: 150,
         marginBottom: 100,
         alignItems: 'flex-start',
         gap: 10

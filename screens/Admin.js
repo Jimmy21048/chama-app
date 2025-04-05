@@ -19,12 +19,11 @@ export default function Admin({ navigation, route }) {
         username: '',
         amount: 0
     })
-    const[loading, setLoading] = useState(false)
+    const[loading, setLoading] = useState(true)
     const[updateLoading, setUpdateLoading] = useState(false)
     const[message, setMessage] = useState({text: '', type: ''})
-    const[displayMessage, setDisplayMessage] = useState(false)
     const[selectedUser, setSelectedUser] = useState('select')
-    const[rounds, setRounds] = useState({days: 30, date: '2025-01-01'})
+    const[rounds, setRounds] = useState({days: 30, amount: 150, date: '2025-01-01'})
 
     
     useEffect(() => {
@@ -33,39 +32,39 @@ export default function Admin({ navigation, route }) {
             let usersDetails = await getUsers()
             const roundDetails = await getRoundDetails()
             if(usersDetails.success) {
-                if(roundDetails) {
-                    setRounds({days: roundDetails.round_days, date: roundDetails.start_date})
+                if(roundDetails.success && roundDetails.success.length > 0) {
+                    const roundDetailsHolder = roundDetails.success[0]
+                    setRounds({days: roundDetailsHolder.round_days, date: roundDetailsHolder.start_date, amount: roundDetailsHolder.round_amount})
 
                     //get today's number since the start date of the rounds
-                    let tempTodayNO = getDaysNumber(roundDetails.start_date).todayNumber
+                    let tempTodayNO = getDaysNumber(roundDetailsHolder.start_date).todayNumber
                     
-                    const thisWeek = Math.ceil(tempTodayNO / 7)
-                    const thisRound = Math.ceil(tempTodayNO / roundDetails.round_days)
-
+                    const thisRound = Math.ceil(tempTodayNO / roundDetailsHolder.round_days)
                     //filter users whose week and month details are not upto date
                     const notUpdated = usersDetails.success.filter(user => {
-                        return user.week < thisWeek || user.month < thisRound
+                        return user.month < thisRound
                     }).map(user => {
-                        return { username: user.username, week: user.week, month: user.month, weekDiff: thisWeek - user.week, monthDiff : thisRound - user.month, thisWeek, thisRound }
+                        return { username: user.username, month: user.month, monthDiff : thisRound - user.month, thisRound }
                     })
 
                     if(notUpdated.length > 0) {
                         //update week and month values for users with outdated values then retrieve the latest users list
-                        const x = await updateUsers(notUpdated)
+                        const x = await updateUsers(notUpdated, rounds.amount)
                         usersDetails = await getUsers()
                     }
                     setUsers(usersDetails.success)
+                    setLoading(false)
 
                 }else {
-                    setMessage({ text: 'Error Loading Details', type: 'error'})
+                    setMessage({ text: roundDetails.fail || "ERROR", type: 'error'})
                     setTimeout(() => {
-                        setMessage({message: '', type: ''})
+                        setMessage({text: '', type: ''})
                     }, 5000)
                 }
             } else {
                 setMessage({ text: usersDetails.fail || "ERROR", type: 'error'})
                 setTimeout(() => {
-                    setMessage({message: '', type: ''})
+                    setMessage({text: '', type: ''})
                 }, 5000)
             }
 
@@ -96,7 +95,7 @@ export default function Admin({ navigation, route }) {
                                         }, 5000)
                                     } else {
                                         const { todayNumber } = getDaysNumber(rounds.date)
-                                        axios.post(`http://${HOST}:3000/addUser`, {username: data.username, todayNumber})
+                                        axios.post(`http://${HOST}:3000/addUser`, {username: data.username, todayNumber, amount:  rounds.amount, days: rounds.days, userNumber: users.length})
                                         .then(res => {
                                             if(res.data.added) {
                                                 setData({username: '', amount: 0})
@@ -160,15 +159,16 @@ export default function Admin({ navigation, route }) {
             
         }
     }
-    // if(loading) {
-    //     return <Text>Loading</Text>
-    // }
+    if(loading) {
+        return <Text>Loading</Text>
+    }
     return (
         <ImageBackground
             source={require('../assets/bgc1.png')} style={styles.background}>
         <SafeAreaView style = { styles.container }>
             <StatusBar style="dark" />
             <ScrollView style = {{flexGrow: 1}}>
+            {/* <View style={{flex: 1}}> */}
                 <View style = { styles.header }>
                     <Text style = {{ 
                         fontSize: 30, borderColor: '#000000', 
@@ -218,6 +218,7 @@ export default function Admin({ navigation, route }) {
                         <Advanced {...{rounds, setRounds}} />
                     </View>
                 </View>
+            {/* </View> */}
             </ScrollView>
         </SafeAreaView>
         </ImageBackground>
@@ -247,7 +248,7 @@ const styles = StyleSheet.create({
     body: {
         borderWidth: 1,
         borderTopColor: 'black',
-        height: height * 0.9,
+        flex: 1,
         padding: 10,
         gap: 10
     },

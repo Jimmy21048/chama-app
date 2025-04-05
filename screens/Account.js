@@ -4,7 +4,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { HOST } from '@env'
-import { getRoundPerson, daysToMyRound, getDaysNumber, getUsers } from '../functions/functions'
+import { getRoundPerson, daysToMyRound, getDaysNumber, getUsers, getRoundDetails } from '../functions/functions'
 import Message from "../components/Message";
 
 
@@ -18,28 +18,59 @@ export default function Home({ navigation, route }) {
     })
     const[progress, setProgress] = useState(0.5)
     const[totalAmount, setTotalAmount] = useState(0)
+    const[monthlyTotal, setMonthlyTotal] = useState(0)
     const[savings, setSavings] = useState(0)
     const[rounds, setRounds] = useState({days: 0, date: '2025-02-01'})
     const total = 1000
     const[loading, setLoading] = useState(true)
     const[message, setMessage] = useState({text: '', type: ''})
+    const[roundNumber, setRoundNumber] = useState(0)
+    const[roundUser, setRoundUser] = useState({})
+    const[myDay, setMyDay] = useState(0)
 
     useEffect(() => {
         const fetchData = async () => {
             const usersDetails = await getUsers()
             if(usersDetails.success) {
+                // console.log(usersDetails.success)
                 setUsers(usersDetails.success)
 
                 const tempData = usersDetails.success.filter((item) => {
                     return item.username === user
                 })[0]
-
+                // console.log(tempData)
                 setMyData(tempData)
                 const tempTotal = usersDetails.success.reduce((sum, item) => sum + item.total, 0)
+                const tempMonthlyTotal = usersDetails.success.reduce((sum, item) => sum + item.monthly, 0)
+                // console.log(tempMonthlyTotal)
                 setTotalAmount(tempTotal - (tempTotal/10))
+                setMonthlyTotal(tempMonthlyTotal)
                 setSavings((tempTotal/10))
 
-                //continue from here
+                const roundDetails = await getRoundDetails()
+                if(roundDetails.success && roundDetails.success.length > 0) {
+                    const roundDetailsHolder = roundDetails.success[0]
+                    setRounds({days: roundDetailsHolder.round_days, date: roundDetailsHolder.start_date, amount: roundDetailsHolder.round_amount})
+
+                    //get the person receiving funds from current round 
+                    const tempRoundNumber = getRoundPerson(roundDetailsHolder.round_days, roundDetailsHolder.start_date)
+                    setRoundNumber(tempRoundNumber)
+                    //separate their details from other users
+                    const tempRoundUser = usersDetails.success.filter(person => {
+                        return person.round === tempRoundNumber
+                    })
+                    setRoundUser(tempRoundUser)
+                    //get the logged-on user's days remaining to receive funds
+                    const tempMyDay = daysToMyRound(tempData.round, roundDetailsHolder.start_date, roundDetailsHolder.round_days)
+                    // console.log(myData.round, roundDetailsHolder.start_date, roundDetailsHolder.round_days)
+                    setMyDay(tempMyDay)
+                    setLoading(false)
+                }else {
+                    setMessage({ text: roundDetails.fail || "ERROR", type: 'error'})
+                    setTimeout(() => {
+                        setMessage({text: '', type: ''})
+                    }, 5000)
+                }
             }else {
                 setMessage({ text: usersDetails.fail || "ERROR", type: 'error'})
                 setTimeout(() => {
@@ -48,25 +79,8 @@ export default function Home({ navigation, route }) {
             }
         }
         fetchData()
-
-        axios.get(`http://${HOST}:3000/getRoundDetails`)
-        .then(response => {
-            if(response.data.success) {
-                const data = response.data.success[0]
-                setRounds({days: data.round_days, date: data.start_date})
-            }
-        })
-
     }, [])
-
-    const roundNumber = getRoundPerson(30, '2025-02-01')
-    const roundUser = users.filter(person => {
-        return person.round === roundNumber
-    })
-
-    const myDay = daysToMyRound(3, '2025-02-01', 30)
-    // console.log(myDay)
-    const { todayNumber, startDayNumber } = getDaysNumber('2025-02-01')
+    console.log( monthlyTotal)
 
     if(loading) {
         return <Text>Trying</Text>
@@ -90,11 +104,12 @@ export default function Home({ navigation, route }) {
             }
             <View style = { styles.body }>
                 <View style = { styles.box }>
-                    <View style = {{ flexDirection: 'row', gap: 10, alignItems: "flex-end", height: height * 0.12,justifyContent: 'space-between' }}>
-                        <View style = {{gap: 10, alignItems: 'center', width: 70 }}>
-                            <Text style = {{ fontSize: 19 }}>Week</Text>
+                    <Text style = {{ fontSize: 19 }}>My progress</Text>
+                    <View style = {{ flexDirection: 'row', gap: 10, alignItems: "flex-end", height: height * 0.08,justifyContent: 'space-between' }}>
+                        <View style = {{gap: 10, alignItems: 'flex-start', width: 60}}>
                             <Progress.Circle
-                                progress={myData.weekly / 150} 
+                                //lookout for error division by zero
+                                progress={myData.monthly / (rounds.amount > 0 ? rounds.amount : 1)} 
                                 size={60} 
                                 thickness={8} 
                                 color="purple" 
@@ -102,8 +117,8 @@ export default function Home({ navigation, route }) {
                         </View>
                         <View style = {styles.textBox}>
                                 <Text style = { styles.nameTitle }>YOU</Text>
-                                <Text>Paid: {myData.weekly}</Text>
-                                <Text>Arr: {150 - myData.weekly}</Text>
+                                <Text>Paid: {myData.monthly}</Text>
+                                <Text>Extra by: {myData.extra}</Text>
                         </View>
                         <TouchableOpacity onPress={() => navigation.navigate('more', { users: users })} activeOpacity={0.2} style = { styles.more }>
                                 <MaterialIcons name="add" size={50} color={'purple'} />
@@ -111,9 +126,10 @@ export default function Home({ navigation, route }) {
                     </View>
                     <View style = { { height: height * 0.12, flexDirection: 'row', gap: 20, alignItems: 'flex-end'} }>
                         <View style = {{gap: 10}}>
-                            <Text style = {{ fontSize: 19 }}>Month</Text>
+                            <Text style = {{ fontSize: 19 }}>Rounds</Text>
                             <Progress.Circle
-                                    progress={0.9} 
+                                    //lookout for error division by zero
+                                    progress={myData.monthly / (monthlyTotal > 0 ? monthlyTotal : 1)} 
                                     size={60} 
                                     thickness={8} 
                                     color="purple" 
@@ -121,14 +137,12 @@ export default function Home({ navigation, route }) {
                         </View>
                         <View>
                             <Text style = {{fontWeight: 800}}>Round Beneficiary: { roundUser && roundUser[0].username }</Text>
-                            <Text>Total Amount: 1300</Text>
-                            <Text>Current Balance: 1300</Text>
+                            <Text>Collected Amount: { monthlyTotal }</Text>
                         </View>
                     </View>
-                    <View style = {{height: height * 0.1}}>
+                    <View style = {{height: height * 0.08}}>
                         <Text style = {{ fontSize: 17 }}>Stats</Text>
-                        <Text>Days to my round: { myDay && myDay }</Text>
-                        <Text>Amount to your next round: 650</Text>
+                        <Text>Days to my round: { myDay < 1 ? 'completed' : myDay }</Text>
                     </View>
                     <View style = { styles.card }>
                         <Text style = {{ fontSize: 33 }}>Balance</Text>
@@ -173,8 +187,7 @@ const styles = StyleSheet.create({
     },
     body: {
         height: height * 0.9,
-        padding: 10,
-        
+        padding: 10
     },
     more: {
         borderWidth: 4,
@@ -183,7 +196,7 @@ const styles = StyleSheet.create({
     },
     box: {
         flex: 1,
-        gap: height * 0.01
+        gap: 10
     },
     nameTitle: {
         fontWeight: 800,
