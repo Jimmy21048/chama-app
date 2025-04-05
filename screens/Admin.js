@@ -49,7 +49,7 @@ export default function Admin({ navigation, route }) {
 
                     if(notUpdated.length > 0) {
                         //update week and month values for users with outdated values then retrieve the latest users list
-                        const x = await updateUsers(notUpdated, rounds.amount)
+                        await updateUsers(notUpdated, rounds.amount)
                         usersDetails = await getUsers()
                     }
                     setUsers(usersDetails.success)
@@ -84,7 +84,7 @@ export default function Admin({ navigation, route }) {
                         {
                             text: "Add",
                             onPress: () => {
-                                axios.post(`http://${HOST}:3000/userExists`, {username: data.username}, setLoading(true))
+                                axios.get(`http://${HOST}:3000/userExists/${data.user}`, setLoading(true))
                                 .then(response => {
                                     const exists = response.data.exists
 
@@ -140,14 +140,19 @@ export default function Admin({ navigation, route }) {
             axios.post(`http://${HOST}:3000/updateAmount`, 
                 {username: userItem.username, metaData: JSON.stringify(parsedMetaData), amount: data.amount, todayNumber, roundDays : rounds.days})
             .then(res => {
-                setMessage({text: 'Amount Updated', type: 'success'})
-                setTimeout(() => {
-                    setMessage({text: '', type: ''})
-                }, 5000)
+                if(res.data.success) {
+                    setMessage({text: 'Amount Updated', type: 'success'})
+                    setTimeout(() => {
+                        setMessage({text: '', type: ''})
+                    }, 5000)
 
-                setData({username: '', amount: 0})
-                setSelectedUser('select')
-                setUpdateLoading(false)
+                    setData({username: '', amount: 0})
+                    setSelectedUser('select')
+                    setUpdateLoading(false)
+                } else {
+
+                }
+
             })
         } else {
             setMessage({text: 'Please Select a valid Member or Amount', type: 'error'})
@@ -159,6 +164,8 @@ export default function Admin({ navigation, route }) {
             
         }
     }
+
+    // console.log(users, rounds)
     if(loading) {
         return <Text>Loading</Text>
     }

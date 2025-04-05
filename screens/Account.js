@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, SafeAreaView, Platform, TouchableOpacity, Dimensions } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, Platform, TouchableOpacity, Dimensions, ImageBackground } from "react-native";
 import * as Progress from 'react-native-progress';
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
@@ -16,12 +16,10 @@ export default function Home({ navigation, route }) {
         weekly: 1,
         metaData: []
     })
-    const[progress, setProgress] = useState(0.5)
     const[totalAmount, setTotalAmount] = useState(0)
     const[monthlyTotal, setMonthlyTotal] = useState(0)
     const[savings, setSavings] = useState(0)
     const[rounds, setRounds] = useState({days: 0, date: '2025-02-01'})
-    const total = 1000
     const[loading, setLoading] = useState(true)
     const[message, setMessage] = useState({text: '', type: ''})
     const[roundNumber, setRoundNumber] = useState(0)
@@ -32,17 +30,16 @@ export default function Home({ navigation, route }) {
         const fetchData = async () => {
             const usersDetails = await getUsers()
             if(usersDetails.success) {
-                // console.log(usersDetails.success)
                 setUsers(usersDetails.success)
 
                 const tempData = usersDetails.success.filter((item) => {
                     return item.username === user
                 })[0]
-                // console.log(tempData)
+
                 setMyData(tempData)
                 const tempTotal = usersDetails.success.reduce((sum, item) => sum + item.total, 0)
                 const tempMonthlyTotal = usersDetails.success.reduce((sum, item) => sum + item.monthly, 0)
-                // console.log(tempMonthlyTotal)
+
                 setTotalAmount(tempTotal - (tempTotal/10))
                 setMonthlyTotal(tempMonthlyTotal)
                 setSavings((tempTotal/10))
@@ -62,7 +59,6 @@ export default function Home({ navigation, route }) {
                     setRoundUser(tempRoundUser)
                     //get the logged-on user's days remaining to receive funds
                     const tempMyDay = daysToMyRound(tempData.round, roundDetailsHolder.start_date, roundDetailsHolder.round_days)
-                    // console.log(myData.round, roundDetailsHolder.start_date, roundDetailsHolder.round_days)
                     setMyDay(tempMyDay)
                     setLoading(false)
                 }else {
@@ -80,13 +76,13 @@ export default function Home({ navigation, route }) {
         }
         fetchData()
     }, [])
-    console.log( monthlyTotal)
 
     if(loading) {
         return <Text>Trying</Text>
     }
 
     return (
+        <ImageBackground source={require('../assets/bgc1.png')} style={styles.background}>
         <SafeAreaView style = { styles.container } >
             <View style = { styles.header }>
                 <Text style = {{ 
@@ -113,12 +109,13 @@ export default function Home({ navigation, route }) {
                                 size={60} 
                                 thickness={8} 
                                 color="purple" 
-                                showsText={true}  />
+                                // showsText={true}  
+                                />
                         </View>
                         <View style = {styles.textBox}>
                                 <Text style = { styles.nameTitle }>YOU</Text>
                                 <Text>Paid: {myData.monthly}</Text>
-                                <Text>Extra by: {myData.extra}</Text>
+                                <Text>Extra by: {myData.extra > (myData.month * rounds.amount) ? 0 : myData.extra}</Text>
                         </View>
                         <TouchableOpacity onPress={() => navigation.navigate('more', { users: users })} activeOpacity={0.2} style = { styles.more }>
                                 <MaterialIcons name="add" size={50} color={'purple'} />
@@ -133,7 +130,8 @@ export default function Home({ navigation, route }) {
                                     size={60} 
                                     thickness={8} 
                                     color="purple" 
-                                    showsText={true}  />
+                                    // showsText={true}  
+                                    />
                         </View>
                         <View>
                             <Text style = {{fontWeight: 800}}>Round Beneficiary: { roundUser && roundUser[0].username }</Text>
@@ -161,10 +159,19 @@ export default function Home({ navigation, route }) {
                 </View>
             </View>
         </SafeAreaView>
+        </ImageBackground>
+
     )
 }
 
 const styles = StyleSheet.create({
+    background: {
+        flex: 1,
+        resizeMode: 'cover',
+        justifyContent: 'center',
+        width: width,
+        height: height
+    },
     container : {
         flex: 1,
         paddingTop: Platform.OS === 'ios' ? 5 : 35
