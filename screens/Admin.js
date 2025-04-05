@@ -84,7 +84,7 @@ export default function Admin({ navigation, route }) {
                         {
                             text: "Add",
                             onPress: () => {
-                                axios.get(`http://${HOST}:3000/userExists/${data.user}`, setLoading(true))
+                                axios.get(`${HOST}/userExists/${data.user}`, setLoading(true))
                                 .then(response => {
                                     const exists = response.data.exists
 
@@ -95,7 +95,7 @@ export default function Admin({ navigation, route }) {
                                         }, 5000)
                                     } else {
                                         const { todayNumber } = getDaysNumber(rounds.date)
-                                        axios.post(`http://${HOST}:3000/addUser`, {username: data.username, todayNumber, amount:  rounds.amount, days: rounds.days, userNumber: users.length})
+                                        axios.post(`${HOST}/addUser`, {username: data.username, todayNumber, amount:  rounds.amount, days: rounds.days, userNumber: users.length})
                                         .then(res => {
                                             if(res.data.added) {
                                                 setData({username: '', amount: 0})
@@ -137,7 +137,7 @@ export default function Admin({ navigation, route }) {
         if(data.amount > 0 && userItem) {
             const parsedMetaData = JSON.parse(userItem.metaData) 
             parsedMetaData.push(metaData)
-            axios.post(`http://${HOST}:3000/updateAmount`, 
+            axios.post(`${HOST}/updateAmount`, 
                 {username: userItem.username, metaData: JSON.stringify(parsedMetaData), amount: data.amount, todayNumber, roundDays : rounds.days})
             .then(res => {
                 if(res.data.success) {
@@ -165,7 +165,6 @@ export default function Admin({ navigation, route }) {
         }
     }
 
-    // console.log(users, rounds)
     if(loading) {
         return <Text>Loading</Text>
     }

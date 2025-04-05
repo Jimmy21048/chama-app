@@ -95,7 +95,7 @@ export default function EditRounds({ navigation, route }) {
                     {
                         text: "Update",
                         onPress: () => {
-                            axios.post(`http://${HOST}:3000/updateRounds`, {users: updatedRounds})
+                            axios.post(`${HOST}/updateRounds`, {users: updatedRounds})
                             .then(response => {
                                 if(response.data.success) {
                                     setMessage({text: 'Rounds Updated Successfully', type: 'success'})

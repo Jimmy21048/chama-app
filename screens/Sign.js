@@ -107,8 +107,6 @@ export default function Sign({ navigation }) {
             {
                 message.text !== '' && <Message message={message.text} type={message.type} />
             }
-            {/* { error && <Text style = { styles.error }>{error}</Text> } */}
-            {/* { success && <Text style = { styles.success }>{success}</Text> } */}
                 <View style = { styles.form }>
                     <View style = { styles.inputs }>
                         <View style = {{gap: 10}}>

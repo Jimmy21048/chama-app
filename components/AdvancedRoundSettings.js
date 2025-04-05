@@ -3,12 +3,10 @@ import Button from "./Button";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { HOST } from '@env'
-import Message from "./Message";
 
 const { width } = Dimensions.get('screen')
 export default function Advanced({ rounds, setRounds }) {
     const[disabled, setDisabled] = useState(true)
-    const[message, setMessage] = useState({text: '', type: ''})
 
     const handleDisableInput = () => {
         setDisabled(!disabled)
@@ -16,7 +14,7 @@ export default function Advanced({ rounds, setRounds }) {
     console.log(rounds)
 
     const handleChangeRounds = () => {
-        axios.post(`http://${HOST}:3000/changeRoundDetails`, { rounds })
+        axios.post(`${HOST}/changeRoundDetails`, { rounds })
         .then(response => {
             if(response.data.success) {
                 setDisabled(true)
@@ -25,9 +23,6 @@ export default function Advanced({ rounds, setRounds }) {
     }
     return (
         <View style = { styles.container }>
-        {/* {
-            message.text !== '' && <Message message={message.text} type={message.type} />
-        } */}
             <Button text={'EDIT'} height={35} width={80} br={10} bgc={'#990000'} onPress={handleDisableInput}  />
             <View style = {{flexDirection: 'row', justifyContent: 'space-between', width: 300}}>
                 <Text style = { styles.text }>Days per Round: </Text>
