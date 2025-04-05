@@ -28,13 +28,12 @@ function getRoundPerson(days, startDay) {
 function daysToMyRound(round, startDay, days) {
     const { todayNumber } = getDaysNumber(startDay)
     const myDay = ((round) * days) - todayNumber
-    // console.log(todayNumber)
     return myDay
 }
 
 async function getRoundDetails() {
     try {
-        const result = await axios.get(`http://${HOST}:3000/getRoundDetails`)
+        const result = await axios.get(`${HOST}/getRoundDetails`)
         return result.data
     }catch(err) {
         console.log(err)
@@ -44,7 +43,7 @@ async function getRoundDetails() {
 
 async function getUsers() {
     try {
-        const result = await axios.get(`http://${HOST}:3000/getUsers`)
+        const result = await axios.get(`${HOST}/getUsers`)
         return result.data
     }catch(err) {
         console.log(err)
@@ -54,7 +53,7 @@ async function getUsers() {
 
 async function updateUsers(notUpdated, amount) {
     try {
-        const result = await axios.post(`http://${HOST}:3000/updateUsers`, { notUpdated, amount })  
+        const result = await axios.post(`${HOST}/updateUsers`, { notUpdated, amount })  
         const data = result.data.success || null
         return data   
     }catch(err) {
@@ -65,7 +64,7 @@ async function updateUsers(notUpdated, amount) {
 
 async function getUser(username) {
     try {
-        const result = await axios.get(`http://${HOST}:3000/getUser/${username}`,)
+        const result = await axios.get(`${HOST}/getUser/${username}`,)
         return result.data
     }catch(err) {
         console.log("An error occurred")
@@ -75,7 +74,7 @@ async function getUser(username) {
 
 async function verifyUser(username, password) {
     try {
-        const result = await axios.post(`http://${HOST}:3000/verifyUser`, { username, password })
+        const result = await axios.post(`${HOST}/verifyUser`, { username, password })
         return result.data
     }catch(err) {
         console.log("An error occurred")
